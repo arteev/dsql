@@ -1,0 +1,44 @@
+Can do this:
+    ping
+    exec/select from command line (direct output into console)
+
+-- release 1.0
+fixed: exec,select с параметрами через командную стороку (передавать параметры SQL)
+fixed: exec,select sql из файла
+fixed: format output (FO) table
+fixed: SQL from pipe channel
+fixed: output table: auto width
+fixed: raw пофиксить DB: "FIELD:VALUE";..
+fixed: подавлять ошибки, параметр и cli флаг для запросов
+fixed: engine repo filter
+fixed: engine db repo
+fixed: select,exec - engine filter
+fixed: engine db factory connection
+fixed: статистика на каждый запрос
+fixed: рефакторинг ститистику общую Snap функцию убрать из action
+fixed: db list: filter -engine -code
+fixed: format output raw: {line}{row}{colnum}{column}:{data}
+fixed: db list,query: -tag
+fixed: tags for connection
+fixed: refactor общий фильтр выбора БД для запросов и простановки тегов
+fixed: linter,refactor
+todo: GitHub:make repository
+todo: GitHub:Readme.md
+todo: GitHub:badge build
+todo: examples
+todo: GitHub:Quick start
+
+
+-- release 2.0
+todo: FO - setting columns: name, width, etc.
+todo: format table - рамки
+todo: db list auto width columns
+todo: add,remove tags statistic operation
+todo: output - json,xml
+todo: select. С сохранением в БД общую (в памяти, на диск)
+todo: exec multi sql, script from file
+todo: select multi sql, script from file
+todo: problem? unicode on ansi terminal (windows)?
+
+-- release 3.0
+-- web console
