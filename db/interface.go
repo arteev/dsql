@@ -23,7 +23,6 @@ type RepositoryDB interface {
 //A CollectionRepositoryDB returns collection of the parameters
 type CollectionRepositoryDB interface {
 	Get() []Database
-	//TODO: refactor filter args string...
 	AddFilterEnabled() CollectionRepositoryDB
 	AddFilterIncludeDB(code ...string) CollectionRepositoryDB
 	AddFilterIncludeEngine(engine ...string) CollectionRepositoryDB

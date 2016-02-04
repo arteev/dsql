@@ -43,7 +43,6 @@ func (r *sQLiteRepository) Add(db Database) error {
 	return err
 }
 
-//TODO: Переделать через Collection
 func (r *sQLiteRepository) FindByCode(aCode string) (Database, error) {
 	col, err := r.All()
 	if err != nil {
