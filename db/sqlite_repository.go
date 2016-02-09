@@ -55,7 +55,7 @@ func (r *sQLiteRepository) FindByCode(aCode string) (Database, error) {
 	}
 	return dbs[0], nil
 }
-
+    
 func (r *sQLiteRepository) Delete(db Database) error {
 	res, err := r.Connection().Exec("delete from databases where code=?", db.Code)
 	if err != nil {

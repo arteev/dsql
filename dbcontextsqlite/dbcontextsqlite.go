@@ -73,8 +73,8 @@ func (r *DBContextSQLite) createDataBase() error {
     connectionstring TEXT    NOT NULL,
     enabled          INTEGER NOT NULL
                              DEFAULT 1
-                             CHECK (enabled IN (0,1),
-    engine           TEXT    NOT NULL)
+                             CHECK (enabled IN (0,1)),
+    engine           TEXT    NOT NULL
 );
 
 CREATE TABLE parameters (
