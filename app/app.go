@@ -7,7 +7,7 @@ import (
 
 	"os"
 
-	"github.com/arteev/dsql/dbcontextsqlite"
+	"github.com/arteev/dsql/repofile"
 )
 
 const (
@@ -17,9 +17,8 @@ const (
 
 //A Application cli
 type Application struct {
-	verbose  int //debug level
-	cli      *cli.App
-	RepoFile string
+	verbose int //debug level
+	cli     *cli.App
 }
 
 //New cli application
@@ -81,6 +80,9 @@ func (a *Application) defineCommands() *Application {
 	a.cli.Commands = append(a.cli.Commands,
 		commands.GetCommandsDBS()...,
 	)
+	a.cli.Commands = append(a.cli.Commands,
+		commands.GetCommandsConfig()...,
+	)
 	return a
 }
 
@@ -90,12 +92,13 @@ func (a *Application) beforeAction() *Application {
 		logger.InitToConsole(logger.Level(a.verbose))
 		logger.Info.Println("Verbose level:", logger.CurrentLevel)
 		if ctx.GlobalIsSet("repo") {
-			a.RepoFile = ctx.GlobalString("repo")
+			repofile.SetRepositoryFile(ctx.GlobalString("repo"))
 		} else if ctx.GlobalIsSet("r") {
-			a.RepoFile = ctx.GlobalString("r")
+			repofile.SetRepositoryFile(ctx.GlobalString("r"))
 		}
 
-		dbcontextsqlite.RepositoryFile = a.RepoFile
+		logger.Info.Println("Verbose level:", logger.CurrentLevel)
+		logger.Info.Println("Repository location:", repofile.GetRepositoryFile(), "Default:", repofile.IsDefault())
 		return nil
 	}
 	return a

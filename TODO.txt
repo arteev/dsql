@@ -23,6 +23,8 @@ fixed: tags for connection
 fixed: refactor общий фильтр выбора БД для запросов и простановки тегов
 fixed: linter,refactor
 todo: GitHub:make repository
+
+
 todo: GitHub:Readme.md
 todo: GitHub:badge build
 todo: examples
@@ -31,12 +33,15 @@ todo: GitHub:Quick start
 
 -- release 1.1
 fixed: create repository in sql(syntax)
-todo: known engines(command:engines)
-todo: command: show location repository (also when verbose)
-todo: timeout query
-todo: filter query: not db, not engine, not tag
+fixed: known engines(command:engines)
+fixed: command: show location repository (also when verbose)
+fixed: searching location repository (cwd, appdir, appdata)
+fixed: default location repository file: ~/.config/dsql/ (win:%AppData%\dsql\)
+
 todo: default param must set when created new repository
-todo: searching location repository (cwd, appdir, appdata)
+
+todo: filter query: not db, not engine, not tag
+todo: timeout query
 
 -- release 2.0
 todo: auto fit width colums (width terminal)  
