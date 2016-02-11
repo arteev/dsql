@@ -36,8 +36,9 @@ func searchLocation() {
 		}
 		if _, err := os.Stat(cfgLocation); err == nil {
 			repositoryFile = cfgLocation
+            return
 		}
-        return
+        
 	}
 	//folder dsql
 	absPath, _ := filepath.Abs(path.Dir(os.Args[0]))
