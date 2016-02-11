@@ -9,6 +9,7 @@ import (
 	"runtime"
 
 	"github.com/arteev/logger"
+    
 )
 
 //RepositoryFile - current file of repository
@@ -75,11 +76,12 @@ func IsDefault() bool {
 
 //PrepareLocation - make directories for repository files
 func PrepareLocation() {
-	dir := path.Dir(repositoryFile)
-	if dir == "" {
+	dir := filepath.Dir(repositoryFile)    
+    if dir == "" || dir == "." {
 		return
-	}
+	}    
 	perm := 0700
+    
 	if err := os.MkdirAll(dir, os.FileMode(perm)); err != nil {
 		logger.Error.Println(err)
 	}
