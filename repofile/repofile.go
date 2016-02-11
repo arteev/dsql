@@ -31,7 +31,7 @@ func searchLocation() {
 	//appdata | ~/.config
 	if u, err := user.Current(); err == nil {
 		if runtime.GOOS == "windows" {
-			cfgLocation = filepath.Join(u.HomeDir, os.Getenv("APPDATA"), "dsql", repositoryFile)
+			cfgLocation = filepath.Join(os.Getenv("APPDATA"), "dsql", repositoryFile)
 		} else {
 			cfgLocation = filepath.Join(u.HomeDir, ".config", "dsql", repositoryFile)
 		}
