@@ -11,12 +11,11 @@ import (
 //KnownEngine - Codes of supported database engines
 var KnownEngine = [...]string{
 	"firebirdsql",
-	"sqlite3",
-	"fake",
+	"sqlite3",	
 }
 
 //CheckCodeEngine - check supported database engine
-func CheckCodeEngine(eng string) {
+func CheckCodeEngine(eng string) {    
 	for _, e := range KnownEngine {
 		if e == eng {
 			return
