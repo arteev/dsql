@@ -37,8 +37,7 @@ fixed: known engines(command:engines)
 fixed: command: show location repository (also when verbose)
 fixed: searching location repository (cwd, appdir, appdata)
 fixed: default location repository file: ~/.config/dsql/ (win:%AppData%\dsql\)
-
-todo: default param must set when created new repository
+fixed: default param must set when created new repository
 
 todo: filter query: not db, not engine, not tag
 todo: timeout query
@@ -48,6 +47,7 @@ todo: auto fit width colums (width terminal)
 todo: FO - setting columns: name, width, etc.
 todo: format table - рамки
 todo: db list auto width columns
+todo: autosize columns: param list 
 todo: add,remove tags statistic operation
 todo: output - json,xml
 todo: select. С сохранением в БД общую (в памяти, на диск)
