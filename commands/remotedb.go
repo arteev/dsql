@@ -23,33 +23,14 @@ import (
 
 //getDatabases return get enabled database with filter by name from args application
 func getDatabases(cflags *cliFlags, r db.RepositoryDB) ([]db.Database, error) {
-	databases := cflags.Databases()
-	engines := cflags.Engines()
-	tags := cflags.Tags()
 	dbs, err := r.All()
 	if err != nil {
 		return nil, err
 	}
-
 	dbs.AddFilterEnabled()
-	if len(databases) > 0 {
-		logger.Debug.Println("only db: ", databases)
-		for _, inc := range databases {
-			dbs.AddFilterIncludeDB(inc)
-		}
-	}
-	if len(engines) > 0 {
-		logger.Debug.Println("only engine: ", engines)
-		for _, e := range engines {
-			rdb.CheckCodeEngine(e)
-			dbs.AddFilterIncludeEngine(e)
-		}
-	}
-	if len(tags) > 0 {
-		logger.Debug.Println("only tag: ", tags)
-		for _, t := range tags {
-			dbs.AddFilterTag(t)
-		}
+	cflags.ApplyTo(dbs)
+	for _, e := range cflags.Engines() {
+		rdb.CheckCodeEngine(e)
 	}
 	result := dbs.Get()
 	return result, nil
@@ -217,9 +198,11 @@ func flagsForQuery(fs ...cli.Flag) []cli.Flag {
 //GetCommandsDBS returns the command for register in cli app
 func GetCommandsDBS() []cli.Command {
 	dbFilterFlags := newCliFlags(cliOption{
-		Databases: modeFlagMulti,
-		Engines:   modeFlagMulti,
-		Tags:      modeFlagMulti,
+		Databases:        modeFlagMulti,
+		ExcludeDatabases: modeFlagMulti,
+		Engines:          modeFlagMulti,
+		Tags:             modeFlagMulti,
+		ExcludeTags:      modeFlagMulti,
 	})
 	flagsQuery := flagsForQuery(dbFilterFlags.Flags()...)
 	return []cli.Command{

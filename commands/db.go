@@ -21,9 +21,11 @@ func stringFlag(name, usage string) cli.Flag {
 func listDatabase() cli.Command {
 
 	dbFilterFlags := newCliFlags(cliOption{
-		Databases: modeFlagMulti,
-		Engines:   modeFlagMulti,
-		Tags:      modeFlagMulti,
+		Databases:        modeFlagMulti,
+		ExcludeDatabases: modeFlagMulti,
+		Engines:          modeFlagMulti,
+		Tags:             modeFlagMulti,
+		ExcludeTags:      modeFlagMulti,
 	})
 
 	return cli.Command{
@@ -33,21 +35,15 @@ func listDatabase() cli.Command {
 		Action: func(ctx *cli.Context) {
 			logger.Trace.Println("command list database")
 			dbFilterFlags.SetContext(ctx)
-			databases := dbFilterFlags.Databases()
-			engines := dbFilterFlags.Engines()
-			tags := dbFilterFlags.Tags()
 			d := db.GetInstance()
 			dbs, err := d.All()
 			if err != nil {
 				panic(err)
-			}
-
-			dbs.AddFilterIncludeDB(databases...)
-			for _, e := range engines {
+			}			
+			for _, e := range dbFilterFlags.Engines() {
 				rdb.CheckCodeEngine(e)
 			}
-			dbs.AddFilterIncludeEngine(engines...)
-			dbs.AddFilterTag(tags...)
+			dbFilterFlags.ApplyTo(dbs)
 
 			tab := fmttab.New("List of databases", fmttab.BorderThin, nil)
 			tab.AddColumn("Id", 4, fmttab.AlignRight)
@@ -78,9 +74,11 @@ func listDatabase() cli.Command {
 
 func tagDatabase() cli.Command {
 	dbFilterFlags := newCliFlags(cliOption{
-		Databases: modeFlagMulti,
-		Engines:   modeFlagMulti,
-		Tags:      modeFlagUnUsed,
+		Databases:        modeFlagMulti,
+		ExcludeDatabases: modeFlagMulti,
+		Engines:          modeFlagMulti,
+		Tags:             modeFlagUnUsed,
+		ExcludeTags:      modeFlagUnUsed,
 	})
 
 	flags := dbFilterFlags.Flags()
@@ -106,22 +104,18 @@ func tagDatabase() cli.Command {
 				panic(fmt.Errorf("must be set: new tag or del tag"))
 			}
 			dbFilterFlags.SetContext(ctx)
-			databases := dbFilterFlags.Databases()
-			engines := dbFilterFlags.Engines()
 
-			logger.Debug.Printf("updating %v,%v, new:%s remove:%s\n", databases, engines, add, remove)
+			logger.Debug.Printf("updating new:%s remove:%s\n", add, remove)
 
 			d := db.GetInstance()
 			col, err := d.All()
 			if err != nil {
 				panic(err)
 			}
-
-			col.AddFilterIncludeDB(databases...)
-			for _, e := range engines {
+			for _, e := range dbFilterFlags.Engines() {
 				rdb.CheckCodeEngine(e)
 			}
-			col.AddFilterIncludeEngine(engines...)
+			dbFilterFlags.ApplyTo(col)
 
 			dbs := col.Get()
 			if len(dbs) == 0 {

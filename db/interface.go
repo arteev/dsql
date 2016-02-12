@@ -25,7 +25,8 @@ type CollectionRepositoryDB interface {
 	Get() []Database
 	AddFilterEnabled() CollectionRepositoryDB
 	AddFilterIncludeDB(code ...string) CollectionRepositoryDB
+	AddFilterExcludeDB(code ...string) CollectionRepositoryDB
 	AddFilterIncludeEngine(engine ...string) CollectionRepositoryDB
-
 	AddFilterTag(tag ...string) CollectionRepositoryDB
+	AddFilterExcludeTag(tag ...string) CollectionRepositoryDB
 }

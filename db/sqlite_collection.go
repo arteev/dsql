@@ -4,14 +4,17 @@ import (
 	"bytes"
 
 	"github.com/arteev/logger"
+	"strings"
 )
 
 type sqliteCollection struct {
-	repository            *sQLiteRepository
-	filterEnabled         bool
-	filerIncludeDatabases []string
-	filerIncludeEngine    []string
-	filerIncludeTags      []string
+	repository             *sQLiteRepository
+	filterEnabled          bool
+	filterIncludeDatabases []string
+	filterExcludeDatabases []string
+	filterIncludeEngine    []string
+	filterIncludeTags      []string
+	filterExcludeTags      []string
 }
 
 //getTags load and  append tags for database
@@ -44,7 +47,7 @@ func (c *sqliteCollection) getTags(d *Database) {
 	}
 }
 
-func (c *sqliteCollection) addFilter(data []string) (string, bool) {
+func (c *sqliteCollection) addFilter(data []string, upper bool) (string, bool) {
 	count := len(data)
 	if count > 0 {
 		var sbuf bytes.Buffer
@@ -55,7 +58,11 @@ func (c *sqliteCollection) addFilter(data []string) (string, bool) {
 			}
 		}
 		for i, d := range data {
+			if upper {
+				d = strings.ToUpper(d)
+			}
 			if i < count-1 {
+
 				strtobuf("\"" + d + "\",")
 			} else {
 				strtobuf("\"" + d + "\"")
@@ -89,18 +96,28 @@ func (c *sqliteCollection) createSQL() string {
 		strtobuf("\nwhere enabled=1")
 		where = true
 	}
-	if dbNames, ok := c.addFilter(c.filerIncludeDatabases); ok {
+	if dbNames, ok := c.addFilter(c.filterIncludeDatabases, true); ok {
 		And()
 		strtobuf("\ncode in (" + dbNames + ")")
 	}
-	if engines, ok := c.addFilter(c.filerIncludeEngine); ok {
+	if exDb, ok := c.addFilter(c.filterExcludeDatabases, true); ok {
+		And()
+		strtobuf("\nnot code in(" + exDb + ")")
+	}
+	if engines, ok := c.addFilter(c.filterIncludeEngine, true); ok {
 		And()
 		strtobuf("\nengine in (" + engines + ")")
 	}
-	if tags, ok := c.addFilter(c.filerIncludeTags); ok {
+	if tags, ok := c.addFilter(c.filterIncludeTags, true); ok {
 		And()
 		strtobuf("\nexists( select 1 from tags where  tags.iddb = databases.id and  UPPER(tag) in (" + tags + "))")
 	}
+
+	if tags, ok := c.addFilter(c.filterExcludeTags, true); ok {
+		And()
+		strtobuf("\nnot exists( select 1 from tags where  tags.iddb = databases.id and  UPPER(tag) in (" + tags + "))")
+	}
+	//fmt.Println(sqlStmt.String())
 	return sqlStmt.String()
 }
 
@@ -150,7 +167,15 @@ func (c *sqliteCollection) AddFilterEnabled() CollectionRepositoryDB {
 func (c *sqliteCollection) AddFilterIncludeDB(code ...string) CollectionRepositoryDB {
 	//todo: check exists by code
 	if len(code) > 0 {
-		c.filerIncludeDatabases = append(c.filerIncludeDatabases, code...)
+		c.filterIncludeDatabases = append(c.filterIncludeDatabases, code...)
+	}
+	return c
+}
+
+func (c *sqliteCollection) AddFilterExcludeDB(code ...string) CollectionRepositoryDB {
+	//todo: check exists by code
+	if len(code) > 0 {
+		c.filterExcludeDatabases = append(c.filterExcludeDatabases, code...)
 	}
 	return c
 }
@@ -158,14 +183,21 @@ func (c *sqliteCollection) AddFilterIncludeDB(code ...string) CollectionReposito
 func (c *sqliteCollection) AddFilterIncludeEngine(engine ...string) CollectionRepositoryDB {
 	//todo: check exists by engine
 	if len(engine) > 0 {
-		c.filerIncludeEngine = append(c.filerIncludeEngine, engine...)
+		c.filterIncludeEngine = append(c.filterIncludeEngine, engine...)
 	}
 	return c
 }
 
 func (c *sqliteCollection) AddFilterTag(tag ...string) CollectionRepositoryDB {
 	if len(tag) > 0 {
-		c.filerIncludeTags = append(c.filerIncludeTags, tag...)
+		c.filterIncludeTags = append(c.filterIncludeTags, tag...)
+	}
+	return c
+}
+
+func (c *sqliteCollection) AddFilterExcludeTag(tag ...string) CollectionRepositoryDB {
+	if len(tag) > 0 {
+		c.filterExcludeTags = append(c.filterExcludeTags, tag...)
 	}
 	return c
 }
