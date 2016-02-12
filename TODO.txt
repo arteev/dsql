@@ -31,7 +31,7 @@ todo: examples
 todo: GitHub:Quick start
 
 
--- release 1.1
+release 1.1
 fixed: create repository in sql(syntax)
 fixed: known engines(command:engines)
 fixed: command: show location repository (also when verbose)
@@ -40,15 +40,16 @@ fixed: default location repository file: ~/.config/dsql/ (win:%AppData%\dsql\)
 fixed: default param must set when created new repository
 fixed: filter query: not db, not tag
 
+todo: release 1.2
 todo: timeout query
+todo: auto fit width colums (width terminal)  
+todo: add,remove tags statistic operation
+todo: autosize columns: param list 
+todo: format table - рамки
+todo: FO - setting columns: name, width, etc.
 
 -- release 2.0
-todo: auto fit width colums (width terminal)  
-todo: FO - setting columns: name, width, etc.
-todo: format table - рамки
 todo: db list auto width columns
-todo: autosize columns: param list 
-todo: add,remove tags statistic operation
 todo: output - json,xml
 todo: select. С сохранением в БД общую (в памяти, на диск)
 todo: exec multi sql, script from file
