@@ -2,8 +2,8 @@ Can do this:
     ping
     exec/select from command line (direct output into console)
 
-todo: GitHub:Readme.md
-todo: GitHub:badge build
+fixed: GitHub:Readme.md
+fixed: GitHub:badge build
 todo: examples
 todo: GitHub:Quick start
 
