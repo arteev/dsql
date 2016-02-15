@@ -2,6 +2,12 @@ Can do this:
     ping
     exec/select from command line (direct output into console)
 
+todo: GitHub:Readme.md
+todo: GitHub:badge build
+todo: examples
+todo: GitHub:Quick start
+
+
 -- release 1.0
 fixed: exec,select с параметрами через командную стороку (передавать параметры SQL)
 fixed: exec,select sql из файла
@@ -22,14 +28,7 @@ fixed: db list,query: -tag
 fixed: tags for connection
 fixed: refactor общий фильтр выбора БД для запросов и простановки тегов
 fixed: linter,refactor
-todo: GitHub:make repository
-
-
-todo: GitHub:Readme.md
-todo: GitHub:badge build
-todo: examples
-todo: GitHub:Quick start
-
+fixed: GitHub:make repository
 
 release 1.1
 fixed: create repository in sql(syntax)
