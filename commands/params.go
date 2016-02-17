@@ -9,6 +9,7 @@ import (
 	"github.com/arteev/fmttab"
 	"github.com/arteev/logger"
 	"github.com/codegangsta/cli"
+	"github.com/nsf/termbox-go"
 )
 
 //Errors
@@ -36,10 +37,11 @@ func listParams() cli.Command {
 				panic(err)
 			}
 			tab := fmttab.New("List of databases", fmttab.BorderThin, nil)
+
 			tab.AddColumn("Id", 4, fmttab.AlignRight)
-			tab.AddColumn("Name", 25, fmttab.AlignLeft)
-			tab.AddColumn("Value", 25, fmttab.AlignLeft)
-			tab.AddColumn("Description", 30, fmttab.AlignLeft)
+			tab.AddColumn("Name", fmttab.WidthAuto, fmttab.AlignLeft)
+			tab.AddColumn("Value", fmttab.WidthAuto, fmttab.AlignLeft)
+			tab.AddColumn("Description", fmttab.WidthAuto, fmttab.AlignLeft)
 			for _, curd := range params.Get() {
 				rec := make(map[string]interface{})
 				rec["Id"] = curd.ID
@@ -48,6 +50,13 @@ func listParams() cli.Command {
 				rec["Description"] = curd.Description
 				tab.AppendData(rec)
 			}
+			if e := termbox.Init(); e != nil {
+				panic(e)
+			}
+			tw, _ := termbox.Size()			
+			tab.AutoSize(true, tw)
+			termbox.Close()
+
 			if _, err := tab.WriteTo(os.Stdout); err != nil {
 				panic(err)
 			}

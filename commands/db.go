@@ -9,6 +9,7 @@ import (
 	"github.com/arteev/fmttab"
 	"github.com/arteev/logger"
 	"github.com/codegangsta/cli"
+	"github.com/nsf/termbox-go"
 )
 
 func stringFlag(name, usage string) cli.Flag {
@@ -64,6 +65,12 @@ func listDatabase() cli.Command {
 				rec["Tags"] = curd.TagsComma(";")
 				tab.AppendData(rec)
 			}
+            if e := termbox.Init(); e != nil {
+				panic(e)
+			}
+			tw, _ := termbox.Size()			
+			tab.AutoSize(true, tw)
+			termbox.Close()
 			_, err = tab.WriteTo(os.Stdout)
 			if err != nil {
 				panic(err)

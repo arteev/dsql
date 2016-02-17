@@ -7,6 +7,7 @@ import (
 	"github.com/arteev/dsql/rdb/action"
 	"github.com/arteev/dsql/rdb/sqlcommand"
 	"github.com/arteev/logger"
+	"github.com/nsf/termbox-go"
 
 	"bytes"
 	"fmt"
@@ -154,6 +155,13 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 				table.Columns[c].Width = max
 			}
 		}
+		if e := termbox.Init(); e != nil {
+			return e
+		}
+		tw, _ := termbox.Size()
+		table.AutoSize(true, tw)
+		termbox.Close()
+
 		if _, err := table.WriteTo(os.Stdout); err != nil {
 			return err
 		}
