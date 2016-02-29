@@ -10,6 +10,8 @@ import (
 	"github.com/arteev/logger"
 	"github.com/codegangsta/cli"
 	"github.com/nsf/termbox-go"
+	"github.com/arteev/dsql/parameters/parametergetter"
+	"github.com/arteev/dsql/parameters"
 )
 
 func stringFlag(name, usage string) cli.Flag {
@@ -32,7 +34,10 @@ func listDatabase() cli.Command {
 	return cli.Command{
 		Name:  "list",
 		Usage: "list of databases",
-		Flags: dbFilterFlags.Flags(),
+		Flags: append(dbFilterFlags.Flags(),cli.BoolFlag{
+				Name:  "fit",
+				Usage: "use for auto fit of width columns",
+			}),
 		Action: func(ctx *cli.Context) {
 			logger.Trace.Println("command list database")
 			dbFilterFlags.SetContext(ctx)
@@ -65,12 +70,15 @@ func listDatabase() cli.Command {
 				rec["Tags"] = curd.TagsComma(";")
 				tab.AppendData(rec)
 			}
-            if e := termbox.Init(); e != nil {
-				panic(e)
+            pget := parametergetter.New(ctx, parameters.GetInstance())
+			if pget.GetDef(parametergetter.AutoFitWidthColumns, false).(bool) {
+				if e := termbox.Init(); e != nil {
+					panic(e)
+				}
+				tw, _ := termbox.Size()
+				tab.AutoSize(true, tw)
+				termbox.Close()
 			}
-			tw, _ := termbox.Size()			
-			tab.AutoSize(true, tw)
-			termbox.Close()
 			_, err = tab.WriteTo(os.Stdout)
 			if err != nil {
 				panic(err)

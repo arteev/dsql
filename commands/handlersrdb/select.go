@@ -16,6 +16,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/arteev/dsql/parameters/parametergetter"
 	"github.com/arteev/dsql/rowgetter"
 	"github.com/arteev/fmttab"
 )
@@ -155,12 +156,16 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 				table.Columns[c].Width = max
 			}
 		}
-		if e := termbox.Init(); e != nil {
-			return e
+
+		pget := ctx.Get("params").(parametergetter.ParameterGetter)
+		if pget.GetDef(parametergetter.AutoFitWidthColumns, false).(bool) {
+			if e := termbox.Init(); e != nil {
+				return e
+			}
+			tw, _ := termbox.Size()
+			table.AutoSize(true, tw)
+			termbox.Close()
 		}
-		tw, _ := termbox.Size()
-		table.AutoSize(true, tw)
-		termbox.Close()
 
 		if _, err := table.WriteTo(os.Stdout); err != nil {
 			return err

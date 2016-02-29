@@ -2,7 +2,8 @@ package parametergetter
 
 //pre-defined parameters
 const (
-	Statistic      = "Statistic"
-	QueryStatistic = "QueryStatistic"
-	Silent         = "Silent"
+	Statistic           = "Statistic"
+	QueryStatistic      = "QueryStatistic"
+	Silent              = "Silent"
+	AutoFitWidthColumns = "AutoFitWidthColumns"
 )

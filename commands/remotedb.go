@@ -195,6 +195,12 @@ func flagsForQuery(fs ...cli.Flag) []cli.Flag {
 	return result
 }
 
+func combineFlags(flags ...cli.Flag) []cli.Flag {
+	var result []cli.Flag
+	result = append(result, flags[:]...)
+	return result
+}
+
 //GetCommandsDBS returns the command for register in cli app
 func GetCommandsDBS() []cli.Command {
 	dbFilterFlags := newCliFlags(cliOption{
@@ -209,7 +215,7 @@ func GetCommandsDBS() []cli.Command {
 		cli.Command{
 			Name:  "ping",
 			Usage: "ping remote databases",
-			Flags: dbFilterFlags.Flags(),
+			Flags: flagsQuery,
 			Action: commonActionDBS(dbFilterFlags, "ping", handlersrdb.PingHandler, false,
 				nil,
 				muxActionTriggers(handlersrdb.PrintStatistic),
@@ -218,7 +224,10 @@ func GetCommandsDBS() []cli.Command {
 		cli.Command{
 			Name:  "select",
 			Usage: "select from remote databases",
-			Flags: flagsQuery,
+			Flags: append(flagsQuery, cli.BoolFlag{
+				Name:  "fit",
+				Usage: "use for auto fit of width columns",
+			}),
 			Action: commonActionDBS(dbFilterFlags, "select", handlersrdb.Select, true,
 				handlersrdb.SelectBefore,
 				muxActionTriggers(handlersrdb.SelectAfter, handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic),

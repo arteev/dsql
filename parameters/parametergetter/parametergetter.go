@@ -49,6 +49,11 @@ func (p *parameterGetterMixed) Get(name string) interface{} {
 			return p.context.GlobalBool("silent")
 		}
 		return GetBool()
+    case AutoFitWidthColumns:
+       if p.context.IsSet("fit") {
+           return p.context.Bool("fit")
+       }
+       return GetBool()
 	}
 
 	return nil

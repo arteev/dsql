@@ -23,7 +23,7 @@ fixed: engine db factory connection
 fixed: статистика на каждый запрос
 fixed: рефакторинг ститистику общую Snap функцию убрать из action
 fixed: db list: filter -engine -code
-fixed: format output raw: {line}{row}{colnum}{column}:{data}
+fixed: format outtput raw: {line}{row}{colnum}{column}:{data}
 fixed: db list,query: -tag
 fixed: tags for connection
 fixed: refactor общий фильтр выбора БД для запросов и простановки тегов
@@ -42,7 +42,8 @@ fixed: filter query: not db, not tag
 release 1.2
 fixed: autosize columns: param list 
 fixed: auto fit width columns (width terminal)
-todo: flag,params autofit  
+fixed: flag,params autofit
+  
 todo: format table - рамки
 
 todo: add,remove tags statistic operation

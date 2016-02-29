@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/arteev/dsql/parameters"
+	"github.com/arteev/dsql/parameters/parametergetter"
 	"github.com/arteev/fmttab"
 	"github.com/arteev/logger"
 	"github.com/codegangsta/cli"
@@ -27,6 +28,11 @@ func listParams() cli.Command {
 	return cli.Command{
 		Name:  "list",
 		Usage: "list of parametrs",
+        Flags: []cli.Flag{ cli.BoolFlag{
+				Name:  "fit",
+				Usage: "use for auto fit of width columns",
+			},
+        },
 		Action: func(ctx *cli.Context) {
 			logger.Trace.Println("command params list")
 			defer logger.Trace.Println("command params list done")
@@ -50,12 +56,15 @@ func listParams() cli.Command {
 				rec["Description"] = curd.Description
 				tab.AppendData(rec)
 			}
-			if e := termbox.Init(); e != nil {
-				panic(e)
+			pget := parametergetter.New(ctx, parameters.GetInstance())
+			if pget.GetDef(parametergetter.AutoFitWidthColumns, false).(bool) {
+				if e := termbox.Init(); e != nil {
+					panic(e)
+				}
+				tw, _ := termbox.Size()
+				tab.AutoSize(true, tw)
+				termbox.Close()
 			}
-			tw, _ := termbox.Size()			
-			tab.AutoSize(true, tw)
-			termbox.Close()
 
 			if _, err := tab.WriteTo(os.Stdout); err != nil {
 				panic(err)
