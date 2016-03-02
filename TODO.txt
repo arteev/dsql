@@ -42,11 +42,10 @@ fixed: filter query: not db, not tag
 release 1.2
 fixed: autosize columns: param list 
 fixed: auto fit width columns (width terminal)
-fixed: flag,params autofit
-  
-todo: format table - рамки
-
-todo: add,remove tags statistic operation
+fixed: flag,params autofit 
+fixed: format table - рамки
+fixed: add,remove tags statistic operation
+fixed: bug filter for db: UPPER sql
 todo: FO - setting columns: name, width, etc.
 todo: timeout query
 

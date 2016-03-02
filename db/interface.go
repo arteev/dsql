@@ -4,7 +4,7 @@ import "errors"
 
 //Errors
 var (
-	ErrNotFound = errors.New("Not found")
+	ErrNotFound = errors.New("Database tot found")
 )
 
 //A RepositoryDB repository for entities of the databases
@@ -16,8 +16,8 @@ type RepositoryDB interface {
 	FindByCode(code string) (Database, error)
 	Close() error
 	All() (CollectionRepositoryDB, error)
-	AddTags(db *Database, tags ...string) error
-	RemoveTags(db *Database, tags ...string) error
+	AddTags(db *Database, tags ...string) (int,error)
+	RemoveTags(db *Database, tags ...string) (int,error)
 }
 
 //A CollectionRepositoryDB returns collection of the parameters

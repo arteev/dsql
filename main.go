@@ -1,14 +1,14 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
 
 	"github.com/arteev/dsql/app"
-	"github.com/arteev/logger"
+	//"github.com/arteev/logger"
 )
 
 func main() {
-	defer func() {
+	/*defer func() {
 		e := recover()
 		if e != nil {
 			if logger.CurrentLevel < logger.LevelError {
@@ -16,7 +16,7 @@ func main() {
 			}
 			logger.Error.Println(e)
 		}
-	}()
+	}()*/
 	a := app.New()
 	if err := a.Run(); err != nil {
 		panic(err)

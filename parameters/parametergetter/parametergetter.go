@@ -3,6 +3,7 @@ package parametergetter
 import (
 	"github.com/arteev/dsql/parameters"
 	"github.com/codegangsta/cli"
+	"fmt"
 )
 
 type parameterGetterMixed struct {
@@ -49,11 +50,18 @@ func (p *parameterGetterMixed) Get(name string) interface{} {
 			return p.context.GlobalBool("silent")
 		}
 		return GetBool()
-    case AutoFitWidthColumns:
-       if p.context.IsSet("fit") {
-           return p.context.Bool("fit")
-       }
-       return GetBool()
+	case AutoFitWidthColumns:
+		if p.context.IsSet("fit") {
+			return p.context.Bool("fit")
+		}
+	case BorderTable:
+		if p.context.IsSet("border") {
+			return p.context.String("border")
+		}
+		if repValue, e := p.params.FindByName(name); e == nil {
+            fmt.Println(repValue)
+            return repValue.ValueStr()
+        }
 	}
 
 	return nil

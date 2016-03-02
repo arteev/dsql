@@ -98,15 +98,15 @@ func (c *sqliteCollection) createSQL() string {
 	}
 	if dbNames, ok := c.addFilter(c.filterIncludeDatabases, true); ok {
 		And()
-		strtobuf("\ncode in (" + dbNames + ")")
+		strtobuf("\nUPPER(code) in (" + dbNames + ")")
 	}
 	if exDb, ok := c.addFilter(c.filterExcludeDatabases, true); ok {
 		And()
-		strtobuf("\nnot code in(" + exDb + ")")
+		strtobuf("\nnot UPPER(code) in(" + exDb + ")")
 	}
 	if engines, ok := c.addFilter(c.filterIncludeEngine, true); ok {
 		And()
-		strtobuf("\nengine in (" + engines + ")")
+		strtobuf("\nUPPER(engine) in (" + engines + ")")
 	}
 	if tags, ok := c.addFilter(c.filterIncludeTags, true); ok {
 		And()

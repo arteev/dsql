@@ -5,13 +5,13 @@ import (
 	"os"
 
 	"github.com/arteev/dsql/db"
+	"github.com/arteev/dsql/parameters"
+	"github.com/arteev/dsql/parameters/parametergetter"
 	"github.com/arteev/dsql/rdb"
 	"github.com/arteev/fmttab"
 	"github.com/arteev/logger"
 	"github.com/codegangsta/cli"
 	"github.com/nsf/termbox-go"
-	"github.com/arteev/dsql/parameters/parametergetter"
-	"github.com/arteev/dsql/parameters"
 )
 
 func stringFlag(name, usage string) cli.Flag {
@@ -34,9 +34,14 @@ func listDatabase() cli.Command {
 	return cli.Command{
 		Name:  "list",
 		Usage: "list of databases",
-		Flags: append(dbFilterFlags.Flags(),cli.BoolFlag{
+		Flags: append(dbFilterFlags.Flags(),
+			cli.BoolFlag{
 				Name:  "fit",
 				Usage: "use for auto fit of width columns",
+			},
+			cli.StringFlag{
+				Name:  "border",
+				Usage: "set type of border table: Thin,Double or None. Default:Thin",
 			}),
 		Action: func(ctx *cli.Context) {
 			logger.Trace.Println("command list database")
@@ -45,7 +50,7 @@ func listDatabase() cli.Command {
 			dbs, err := d.All()
 			if err != nil {
 				panic(err)
-			}			
+			}
 			for _, e := range dbFilterFlags.Engines() {
 				rdb.CheckCodeEngine(e)
 			}
@@ -70,7 +75,7 @@ func listDatabase() cli.Command {
 				rec["Tags"] = curd.TagsComma(";")
 				tab.AppendData(rec)
 			}
-            pget := parametergetter.New(ctx, parameters.GetInstance())
+			pget := parametergetter.New(ctx, parameters.GetInstance())
 			if pget.GetDef(parametergetter.AutoFitWidthColumns, false).(bool) {
 				if e := termbox.Init(); e != nil {
 					panic(e)
@@ -78,6 +83,14 @@ func listDatabase() cli.Command {
 				tw, _ := termbox.Size()
 				tab.AutoSize(true, tw)
 				termbox.Close()
+			}
+			switch pget.GetDef(parametergetter.BorderTable, "").(string) {
+			case "Thin":
+				tab.SetBorder(fmttab.BorderThin)
+			case "Double":
+				tab.SetBorder(fmttab.BorderDouble)
+			case "None":
+				tab.SetBorder(fmttab.BorderNone)
 			}
 			_, err = tab.WriteTo(os.Stdout)
 			if err != nil {
@@ -137,16 +150,29 @@ func tagDatabase() cli.Command {
 				panic("databases not found")
 			}
 
+			pget := parametergetter.New(ctx, parameters.GetInstance())
+			showstat := pget.GetDef(parametergetter.Statistic, false).(bool)            
+			var cntadd, cntremove int
+
 			for _, curdb := range dbs {
 				logger.Trace.Printf("process tag: %q\n", curdb.Code)
 
-				if err := d.AddTags(&curdb, add...); err != nil {
+				if cnt, err := d.AddTags(&curdb, add...); err != nil {
 					panic(err)
+				} else {
+                    cntadd += cnt
+					logger.Info.Printf("Added tags %d for %s\n", cnt,curdb.Code)                   
 				}
 
-				if err := d.RemoveTags(&curdb, remove...); err != nil {
+				if cnt, err := d.RemoveTags(&curdb, remove...); err != nil {
 					panic(err)
+				} else {
+                    cntremove += cnt
+					logger.Info.Printf("Removed tags %d for %s\n", cnt,curdb.Code)                    					
 				}
+			}
+			if showstat {                
+				fmt.Printf("Added tags: %d\nRemoved tags: %d\n", cntadd,cntremove)
 			}
 
 		},

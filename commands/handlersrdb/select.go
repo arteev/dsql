@@ -167,6 +167,15 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 			termbox.Close()
 		}
 
+		switch pget.GetDef(parametergetter.BorderTable, "").(string) {
+		case "Thin":
+			table.SetBorder(fmttab.BorderThin)
+		case "Double":
+			table.SetBorder(fmttab.BorderDouble)
+		case "None":
+			table.SetBorder(fmttab.BorderNone)
+		}
+
 		if _, err := table.WriteTo(os.Stdout); err != nil {
 			return err
 		}

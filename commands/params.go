@@ -28,11 +28,16 @@ func listParams() cli.Command {
 	return cli.Command{
 		Name:  "list",
 		Usage: "list of parametrs",
-        Flags: []cli.Flag{ cli.BoolFlag{
+		Flags: []cli.Flag{
+			cli.BoolFlag{
 				Name:  "fit",
 				Usage: "use for auto fit of width columns",
 			},
-        },
+			cli.StringFlag{
+				Name:  "border",
+				Usage: "set type of border table: Thin,Double or None. Default:Thin",
+			},
+		},
 		Action: func(ctx *cli.Context) {
 			logger.Trace.Println("command params list")
 			defer logger.Trace.Println("command params list done")
@@ -64,6 +69,14 @@ func listParams() cli.Command {
 				tw, _ := termbox.Size()
 				tab.AutoSize(true, tw)
 				termbox.Close()
+			}
+			switch pget.GetDef(parametergetter.BorderTable, "").(string) {
+			case "Thin":
+				tab.SetBorder(fmttab.BorderThin)
+			case "Double":
+				tab.SetBorder(fmttab.BorderDouble)
+			case "None":
+				tab.SetBorder(fmttab.BorderNone)
 			}
 
 			if _, err := tab.WriteTo(os.Stdout); err != nil {

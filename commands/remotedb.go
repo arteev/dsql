@@ -224,10 +224,15 @@ func GetCommandsDBS() []cli.Command {
 		cli.Command{
 			Name:  "select",
 			Usage: "select from remote databases",
-			Flags: append(flagsQuery, cli.BoolFlag{
-				Name:  "fit",
-				Usage: "use for auto fit of width columns",
-			}),
+			Flags: append(flagsQuery,
+				cli.BoolFlag{
+					Name:  "fit",
+					Usage: "use for auto fit of width columns",
+				},
+				cli.StringFlag{
+					Name:  "border",
+					Usage: "set type of border table: Thin,Double or None. Default:Thin",
+				}),
 			Action: commonActionDBS(dbFilterFlags, "select", handlersrdb.Select, true,
 				handlersrdb.SelectBefore,
 				muxActionTriggers(handlersrdb.SelectAfter, handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic),

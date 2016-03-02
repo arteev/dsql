@@ -51,11 +51,11 @@ func (r *sQLiteRepository) FindByCode(aCode string) (Database, error) {
 	dbs := col.AddFilterIncludeDB(aCode).Get()
 	if len(dbs) == 0 {
 		err = ErrNotFound
-		return dbs[0], err
+		return Database{}, err
 	}
 	return dbs[0], nil
 }
-    
+
 func (r *sQLiteRepository) Delete(db Database) error {
 	res, err := r.Connection().Exec("delete from databases where code=?", db.Code)
 	if err != nil {
@@ -103,34 +103,42 @@ func (r *sQLiteRepository) Refresh(db *Database) error {
 	return nil
 }
 
-func (r *sQLiteRepository) AddTags(db *Database, tags ...string) error {
+func (r *sQLiteRepository) AddTags(db *Database, tags ...string) (int, error) {
 	if len(tags) == 0 {
-		return nil
+		return 0, nil
 	}
 	sqlStmt := `insert into tags(iddb,tag) values(?,?)`
+	count := 0
 	for _, t := range tags {
 		if !db.TagExists(t) {
-			_, err := r.Connection().Exec(sqlStmt, db.ID, t)
+			ex, err := r.Connection().Exec(sqlStmt, db.ID, t)
 			if err != nil {
-				return err
+				return 0, err
+			}
+			if c, err := ex.RowsAffected(); err == nil {
+				count += int(c)
 			}
 		}
 	}
-	return r.Refresh(db)
+	return count, r.Refresh(db)
 }
 
-func (r *sQLiteRepository) RemoveTags(db *Database, tags ...string) error {
+func (r *sQLiteRepository) RemoveTags(db *Database, tags ...string) (int, error) {
 	if len(tags) == 0 {
-		return nil
+		return 0, nil
 	}
 	sqlStmt := `delete from tags where iddb=? and Upper(tag)=Upper(?)`
+	count := 0
 	for _, t := range tags {
 		if db.TagExists(t) {
-			_, err := r.Connection().Exec(sqlStmt, db.ID, t)
+			ex, err := r.Connection().Exec(sqlStmt, db.ID, t)
 			if err != nil {
-				return err
+				return 0, err
+			}
+			if c, err := ex.RowsAffected(); err == nil {
+				count += int(c)
 			}
 		}
 	}
-	return r.Refresh(db)
+	return count, r.Refresh(db)
 }

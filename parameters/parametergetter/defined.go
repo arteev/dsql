@@ -6,4 +6,5 @@ const (
 	QueryStatistic      = "QueryStatistic"
 	Silent              = "Silent"
 	AutoFitWidthColumns = "AutoFitWidthColumns"
+	BorderTable         = "BorderTable" //None,Thin, Double
 )
