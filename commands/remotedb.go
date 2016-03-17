@@ -82,6 +82,10 @@ func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) err
 			subformat = format[4:]
 			format = "raw"
 		}
+        if strings.Contains(format,"table:") {
+            subformat = format[len("table:"):]
+            format = "table"
+        }
 
 		switch format {
 		case "table", "raw":

@@ -3,7 +3,6 @@ package parametergetter
 import (
 	"github.com/arteev/dsql/parameters"
 	"github.com/codegangsta/cli"
-	"fmt"
 )
 
 type parameterGetterMixed struct {
@@ -58,8 +57,7 @@ func (p *parameterGetterMixed) Get(name string) interface{} {
 		if p.context.IsSet("border") {
 			return p.context.String("border")
 		}
-		if repValue, e := p.params.FindByName(name); e == nil {
-            fmt.Println(repValue)
+		if repValue, e := p.params.FindByName(name); e == nil {          
             return repValue.ValueStr()
         }
 	}

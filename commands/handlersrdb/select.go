@@ -19,6 +19,7 @@ import (
 	"github.com/arteev/dsql/parameters/parametergetter"
 	"github.com/arteev/dsql/rowgetter"
 	"github.com/arteev/fmttab"
+	"github.com/arteev/fmttab/columns"
 )
 
 type headerTable struct {
@@ -34,7 +35,7 @@ type dataTable struct {
 type chanHeader chan *headerTable
 type chanData chan *dataTable
 
-func foundInSlice(strs []*fmttab.Column, value string) bool {
+func foundInSlice(strs columns.Columns, value string) bool {
 	for _, s := range strs {
 		if s.Name == value {
 			return true
@@ -127,6 +128,126 @@ func SelectBefore(dbs []db.Database, ctx *action.Context) error {
 	return nil
 }
 
+func getStrByIdx(params []string, idx int) (string, bool) {
+	if len(params) <= idx {
+		return "", false
+	}
+	return params[idx], true
+}
+func makeMapFromparams(params []string) (result map[string]string) {
+	result = make(map[string]string)
+	for _, p := range params {
+		keypair := strings.SplitN(p, "=", 2)
+		if len(keypair) < 2 {
+			result[keypair[0]] = ""
+		} else {
+			result[keypair[0]] = keypair[1]
+		}
+	}
+	return
+}
+func findTabColumns(table *fmttab.Table, column string) *columns.Column {
+	for i, c := range table.Columns {
+		if c.Name == column {
+			return table.Columns[i]
+		}
+	}
+	return nil
+}
+
+//todo: refactor this vvvv
+func setTableSubFormat(tab *fmttab.Table, subformat string) {
+	sepGroups := ";"
+	sepParams := ":"
+	sepColumnParams := ","
+	if subformat != "" {
+		//column:name=string,width=auto|N,align=left|right,visible=y|n,caption=string;
+		//heading:visible=y;
+		groups := strings.Split(subformat, sepGroups)
+		for _, g := range groups {
+
+			params := strings.Split(g, sepParams)
+			if n, ok := getStrByIdx(params, 0); ok && (strings.Contains(n, "=") || n == "") {
+				params = strings.Split("table:"+g, sepParams)
+			}
+			if subject, ok := getStrByIdx(params, 0); ok {
+				switch subject {
+				case "table":
+					if tableParams, ok := getStrByIdx(params, 1); ok {
+						mcp := makeMapFromparams(strings.Split(tableParams, sepColumnParams))
+						if header, ok := mcp["header"]; ok {
+							if header == "n" || header == "false" {
+								tab.VisibleHeader = false
+							} else if header == "y" || header == "true" {
+								tab.VisibleHeader = true
+							}
+						}
+						if border, ok := mcp["border"]; ok {
+							fmt.Println(border)
+							switch strings.ToLower(border) {
+							case "thin":
+								tab.SetBorder(fmttab.BorderThin)
+							case "double":
+								tab.SetBorder(fmttab.BorderDouble)
+							case "none":
+							case "false":
+							case "n":
+								tab.SetBorder(fmttab.BorderNone)
+							}
+						}
+
+					} //if
+					break
+				case "column":
+					if columnParams, ok := getStrByIdx(params, 1); ok {
+						mcp := makeMapFromparams(strings.Split(columnParams, sepColumnParams))
+						if name, ok := mcp["name"]; ok {
+							if column := findTabColumns(tab, name); column != nil {
+								if align, ok := mcp["align"]; ok {
+									switch align {
+									case "left":
+										column.Aling = fmttab.AlignLeft
+									case "right":
+										column.Aling = fmttab.AlignRight
+									default:
+										panic(fmt.Errorf("Unknow value: %s", align))
+									}
+								} //align
+								if width, ok := mcp["width"]; ok {
+									if width == "auto" {
+										column.Width = fmttab.WidthAuto
+										//fmt.Println(">>>>>")
+									} else {
+										iwidth, err := strconv.Atoi(width)
+										if err != nil {
+											panic(err)
+										}
+										column.Width = iwidth
+									}
+								}
+
+								if visible, ok := mcp["visible"]; ok {
+									if visible == "n" || visible == "false" {
+										column.Visible = false
+									} else if visible == "y" || visible == "true" {
+										column.Visible = true
+									}
+								}
+
+								if caption, ok := mcp["caption"]; ok {
+									column.Caption = caption
+								}
+
+							}
+						}
+					} //if
+				} //switch
+			}
+		}
+
+	}
+}
+
 //SelectAfter trigger after for select action
 func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 	done := ctx.Get("chandone")
@@ -136,10 +257,13 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 	}
 	tab := ctx.Get("table")
 	if tab != nil {
+		//format := ctx.Get("format")
+
 		table := tab.(*fmttab.Table)
 
 		//autofit
-		for c, col := range table.Columns {
+		cols := table.Columns.ColumnsVisible()
+		for c, col := range cols {
 			max := utf8.RuneCountInString(col.Name)
 			for i := 0; i < len(table.Data); i++ {
 				val, ok := table.Data[i][col.Name]
@@ -153,19 +277,11 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 				}
 			}
 			if max != 0 {
-				table.Columns[c].Width = max
+				cols[c].Width = max
 			}
 		}
 
 		pget := ctx.Get("params").(parametergetter.ParameterGetter)
-		if pget.GetDef(parametergetter.AutoFitWidthColumns, false).(bool) {
-			if e := termbox.Init(); e != nil {
-				return e
-			}
-			tw, _ := termbox.Size()
-			table.AutoSize(true, tw)
-			termbox.Close()
-		}
 
 		switch pget.GetDef(parametergetter.BorderTable, "").(string) {
 		case "Thin":
@@ -174,6 +290,18 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 			table.SetBorder(fmttab.BorderDouble)
 		case "None":
 			table.SetBorder(fmttab.BorderNone)
+		}
+
+		setTableSubFormat(table, ctx.GetDef("subformat", "").(string))
+
+		if pget.GetDef(parametergetter.AutoFitWidthColumns, false).(bool) {
+			//todo: BUG when not --fit
+			if e := termbox.Init(); e != nil {
+				return e
+			}
+			tw, _ := termbox.Size()
+			table.AutoSize(true, tw)
+			termbox.Close()
 		}
 
 		if _, err := table.WriteTo(os.Stdout); err != nil {

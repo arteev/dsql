@@ -42,15 +42,19 @@ fixed: filter query: not db, not tag
 release 1.2
 fixed: autosize columns: param list 
 fixed: auto fit width columns (width terminal)
+fixed: db list auto width columns
 fixed: flag,params autofit 
 fixed: format table - рамки
 fixed: add,remove tags statistic operation
 fixed: bug filter for db: UPPER sql
-todo: FO - setting columns: name, width, etc.
-todo: timeout query
+fixed: FO - setting columns: name, width, caption, align
+fixed: table without header
+fixed: ширина колонки при auto с русскими символами неверная
+
 
 -- release 2.0
-todo: db list auto width columns
+todo: service column $CODE$ -> _CODE_ 
+todo: timeout query
 todo: output - json,xml
 todo: select. С сохранением в БД общую (в памяти, на диск)
 todo: exec multi sql, script from file

@@ -5,6 +5,7 @@ import (
 
 	"github.com/arteev/dsql/app"
 	//"github.com/arteev/logger"
+	"github.com/arteev/fmttab"
 )
 
 func main() {
@@ -17,6 +18,7 @@ func main() {
 			logger.Error.Println(e)
 		}
 	}()*/
+    fmttab.Trimend = ">"
 	a := app.New()
 	if err := a.Run(); err != nil {
 		panic(err)
