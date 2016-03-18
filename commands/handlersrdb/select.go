@@ -183,7 +183,6 @@ func setTableSubFormat(tab *fmttab.Table, subformat string) {
 							}
 						}
 						if border, ok := mcp["border"]; ok {
-							fmt.Println(border)
 							switch strings.ToLower(border) {
 							case "thin":
 								tab.SetBorder(fmttab.BorderThin)
@@ -261,27 +260,29 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 
 		table := tab.(*fmttab.Table)
 
-		//autofit
-		cols := table.Columns.ColumnsVisible()
-		for c, col := range cols {
-			max := utf8.RuneCountInString(col.Name)
-			for i := 0; i < len(table.Data); i++ {
-				val, ok := table.Data[i][col.Name]
+		pget := ctx.Get("params").(parametergetter.ParameterGetter)
 
-				if ok && val != nil {
-					fval := fmt.Sprintf("%v", val)
-					l := utf8.RuneCountInString(fval)
-					if l > max {
-						max = l
+		if pget.GetDef(parametergetter.AutoFitWidthColumns, true).(bool) {
+			//todo: move into fmttab
+			cols := table.Columns.ColumnsVisible()
+			for c, col := range cols {
+				max := utf8.RuneCountInString(col.Name)
+				for i := 0; i < len(table.Data); i++ {
+					val, ok := table.Data[i][col.Name]
+
+					if ok && val != nil {
+						fval := fmt.Sprintf("%v", val)
+						l := utf8.RuneCountInString(fval)
+						if l > max {
+							max = l
+						}
 					}
 				}
-			}
-			if max != 0 {
-				cols[c].Width = max
+				if max != 0 {
+					cols[c].Width = max
+				}
 			}
 		}
-
-		pget := ctx.Get("params").(parametergetter.ParameterGetter)
 
 		switch pget.GetDef(parametergetter.BorderTable, "").(string) {
 		case "Thin":
@@ -294,8 +295,8 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 
 		setTableSubFormat(table, ctx.GetDef("subformat", "").(string))
 
-		if pget.GetDef(parametergetter.AutoFitWidthColumns, false).(bool) {
-			//todo: BUG when not --fit
+		if pget.GetDef(parametergetter.Fit, true).(bool) {
+
 			if e := termbox.Init(); e != nil {
 				return e
 			}

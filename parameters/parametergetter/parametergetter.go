@@ -50,16 +50,22 @@ func (p *parameterGetterMixed) Get(name string) interface{} {
 		}
 		return GetBool()
 	case AutoFitWidthColumns:
+		if p.context.IsSet("fitcolumns") {
+			return p.context.Bool("fitcolumns")
+		}
+		return GetBool()
+	case Fit:
 		if p.context.IsSet("fit") {
 			return p.context.Bool("fit")
 		}
+		return GetBool()
 	case BorderTable:
 		if p.context.IsSet("border") {
 			return p.context.String("border")
 		}
-		if repValue, e := p.params.FindByName(name); e == nil {          
-            return repValue.ValueStr()
-        }
+		if repValue, e := p.params.FindByName(name); e == nil {
+			return repValue.ValueStr()
+		}
 	}
 
 	return nil

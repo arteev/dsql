@@ -37,7 +37,7 @@ func listDatabase() cli.Command {
 		Flags: append(dbFilterFlags.Flags(),
 			cli.BoolFlag{
 				Name:  "fit",
-				Usage: "use for auto fit of width columns",
+				Usage: "use for fit table by width window of terminal",
 			},
 			cli.StringFlag{
 				Name:  "border",
@@ -76,7 +76,7 @@ func listDatabase() cli.Command {
 				tab.AppendData(rec)
 			}
 			pget := parametergetter.New(ctx, parameters.GetInstance())
-			if pget.GetDef(parametergetter.AutoFitWidthColumns, false).(bool) {
+			if pget.GetDef(parametergetter.Fit, false).(bool) {
 				if e := termbox.Init(); e != nil {
 					panic(e)
 				}

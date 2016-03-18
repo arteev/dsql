@@ -231,7 +231,11 @@ func GetCommandsDBS() []cli.Command {
 			Flags: append(flagsQuery,
 				cli.BoolFlag{
 					Name:  "fit",
-					Usage: "use for auto fit of width columns",
+					Usage: "use for fit table by width window of terminal",
+				},
+                cli.BoolFlag{
+					Name:  "fitcolumns",
+					Usage: "use for auto width columns by contents",
 				},
 				cli.StringFlag{
 					Name:  "border",
