@@ -16,3 +16,6 @@ coverage-test:
 	go tool cover -func=coverage.out
 	go tool cover -html=coverage.out
 	rm coverage.out
+    
+zip: build	
+	zip dsql-linux-x86_64.zip dsql
