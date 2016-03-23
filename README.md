@@ -6,7 +6,7 @@ dsql
 Description
 -----------
 
-Tool for the simultaneous execution of multiple SQL statements in the database
+The tool for the simultaneous execution of multiple SQL statements in multiple databases.
 
 Installation
 ------------
