@@ -28,3 +28,5 @@ _testmain.go
 repository.sqlite
 dsql
 *~
+
+_examples/myrepo

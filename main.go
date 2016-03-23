@@ -18,7 +18,7 @@ func main() {
 			logger.Error.Println(e)
 		}
 	}()*/
-    fmttab.Trimend = ">"
+	fmttab.Trimend = ">"
 	a := app.New()
 	if err := a.Run(); err != nil {
 		panic(err)

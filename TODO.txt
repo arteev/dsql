@@ -51,9 +51,6 @@ fixed: FO - setting columns: name, width, caption, align
 fixed: table without header
 fixed: ширина колонки при auto с русскими символами неверная
 
-todo: refactor 
-
-
 -- release 2.0
 todo: service column $CODE$ -> _CODE_ 
 todo: timeout query
