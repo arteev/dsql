@@ -21,8 +21,7 @@ Releases
     https://github.com/arteev/dsql/releases
     
     
-Quick start
------------
+https://github.com/arteev/dsql/wiki/Quick-start
 
     
 Documentation
