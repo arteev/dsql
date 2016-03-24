@@ -51,14 +51,16 @@ fixed: FO - setting columns: name, width, caption, align
 fixed: table without header
 fixed: ширина колонки при auto с русскими символами неверная
 
--- release 2.0
-todo: service column $CODE$ -> _CODE_ 
-todo: timeout query
+release 1.3
+fixed: service column $CODE$ -> _CODE_
+todo: problem? unicode on ansi terminal (windows)?
 todo: output - json,xml
+ 
+-- release 2.0
+todo: timeout query
 todo: select. С сохранением в БД общую (в памяти, на диск)
 todo: exec multi sql, script from file
 todo: select multi sql, script from file
-todo: problem? unicode on ansi terminal (windows)?
 
 -- release 3.0
 -- web console

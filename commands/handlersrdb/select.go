@@ -64,7 +64,7 @@ func formatRaw(mask string, row, line int, columns []string, data map[string]int
 			}
 		}
 	}
-	return data["$CODE$"].(string) + ": " + buf.String()
+	return data["_CODE_"].(string) + ": " + buf.String()
 }
 
 //SelectBefore trigger before for select action
@@ -81,7 +81,7 @@ func SelectBefore(dbs []db.Database, ctx *action.Context) error {
 	var tab *fmttab.Table
 	if format == "table" {
 		tab = fmttab.New("", fmttab.BorderThin, nil)
-		tab.AddColumn("$CODE$", 10, fmttab.AlignLeft)
+		tab.AddColumn("_CODE_", 10, fmttab.AlignLeft)
 		ctx.Set("table", tab)
 	}
 	ctx.Set("chanheader", chanHdr)
@@ -255,7 +255,7 @@ func Select(dbs1 db.Database, dsrc *sql.DB, cmd *sqlcommand.SQLCommand, ctx *act
 
 				data[cols[i]] = r
 			}
-			data["$CODE$"] = dbs1.Code
+			data["_CODE_"] = dbs1.Code
 
 			chandata.(chanData) <- &dataTable{
 				Code: dbs1.Code,
