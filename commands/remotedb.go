@@ -88,7 +88,7 @@ func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) err
         }
 
 		switch format {
-		case "table", "raw":
+		case "table", "raw", "json","xml":
 			ctxRun.Set("format", format)
 			ctxRun.Set("subformat", subformat)
 			break
