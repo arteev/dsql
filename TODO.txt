@@ -55,13 +55,15 @@ release 1.3
 fixed: service column $CODE$ -> _CODE_
 fixed: problem? unicode on ansi terminal (windows)? NO PROBLEM. Checked on Win7 64bit cp866 1251 Lucida font. Corrected!
 fixed: output - json,xml
-todo: json: write error,status
+fixed: json,xml subformat: output file
  
 -- release 2.0
 todo: timeout query
 todo: select. С сохранением в БД общую (в памяти, на диск)
 todo: exec multi sql, script from file
 todo: select multi sql, script from file
+todo: json: write error,status ?
 
 -- release 3.0
 -- web console
+json,xml - subfomat: ident, space, pipe when "-"

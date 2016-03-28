@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
+	"io"
 )
 
 //CollectionDataset stored collection of datasets
@@ -55,22 +56,46 @@ func (c *CollectionDataset) GetDatasets() (result []*Dataset) {
 	return
 }
 
-//ToJSON retruns as JSON
-func (c CollectionDataset) ToJSON() string {
-
-	j, err := json.Marshal(c)
-	if err != nil {
-		panic(err)
-	}
+//ToJSON returns as JSON
+func (c CollectionDataset) ToJSON() string {    
 	var out bytes.Buffer
-	json.Indent(&out, j, "", "\t")
+	_,err:=c.WriteJSON(&out);
+    if err!=nil{
+        panic(err)
+    }
 	return out.String()
 }
 
-func (c CollectionDataset) ToXml() string {
-	output, err := xml.MarshalIndent(c, "  ", "    ")
+//ToXML returns as XML
+func (c CollectionDataset) ToXML() string {	
+    var out bytes.Buffer
+	_,err:=c.WriteXML(&out);
+    if err!=nil{
+        panic(err)
+    }
+	return out.String();
+}
+
+//WriteJSON write result in io.Writer
+func (c CollectionDataset) WriteJSON(buf io.Writer) (int64, error) {
+	j, err := json.Marshal(c)
 	if err != nil {
-		panic(err)
+		return 0,err
 	}
-	return string(output)
+	var out bytes.Buffer
+	err = json.Indent(&out, j, "", "\t")
+    if err!=nil {
+        return 0,err
+    }    
+	return out.WriteTo(buf) 
+}
+
+//WriteXML write result in io.Writer
+func (c CollectionDataset) WriteXML(buf io.Writer) (int64, error) {   
+    output, err := xml.MarshalIndent(c, "  ", "    ")
+	if err != nil {
+		return 0,err
+	}      
+    n,err:=buf.Write(output)  	        
+    return int64(n),err
 }

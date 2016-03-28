@@ -78,13 +78,22 @@ func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) err
 	if ctx.IsSet("format") {
 		format := ctx.String("format")
 		subformat := ""
+        //TODO: refactor it!
 		if strings.Contains(format, "raw:") {
-			subformat = format[4:]
+			subformat = format[len("json:"):]
 			format = "raw"
 		}
         if strings.Contains(format,"table:") {
             subformat = format[len("table:"):]
             format = "table"
+        }        
+        if strings.Contains(format,"json:") {
+            subformat = format[len("json:"):]
+            format = "json"
+        }
+        if strings.Contains(format,"xml:") {
+            subformat = format[len("xml:"):]
+            format = "xml"
         }
 
 		switch format {

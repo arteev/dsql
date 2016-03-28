@@ -175,16 +175,36 @@ func doOutputTable(dbs []db.Database, ctx *action.Context) error {
 	return nil
 }
 
-func doOutputJson(dbs []db.Database, ctx *action.Context) error {
+func doOutputJSON(dbs []db.Database, ctx *action.Context) error {
 	datasets := ctx.Get("datasets").(*dataset.CollectionDataset)
-	fmt.Println(datasets.ToJSON())
-	return nil
+	subformat := ctx.GetDef("subformat", "").(string)
+	if subformat == "" {
+		datasets.WriteJSON(os.Stdout)
+		return nil
+	}
+	f, err := os.Create(subformat)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = datasets.WriteJSON(f)
+	return err
 }
 
-func doOutputXml(dbs []db.Database, ctx *action.Context) error {
+func doOutputXML(dbs []db.Database, ctx *action.Context) error {
 	datasets := ctx.Get("datasets").(*dataset.CollectionDataset)
-	fmt.Println(datasets.ToXml())
-	return nil
+	subformat := ctx.GetDef("subformat", "").(string)
+	if subformat == "" {
+		datasets.WriteXML(os.Stdout)
+		return nil
+	}
+	f, err := os.Create(subformat)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = datasets.WriteXML(f)
+	return err
 }
 
 //SelectAfter trigger after for select action
@@ -198,10 +218,10 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 	case "table":
 		return doOutputTable(dbs, ctx)
 	case "json":
-		return doOutputJson(dbs, ctx)
+		return doOutputJSON(dbs, ctx)
 	case "xml":
-		return doOutputXml(dbs, ctx)
-                
+		return doOutputXML(dbs, ctx)
+
 	}
 	return nil
 }
