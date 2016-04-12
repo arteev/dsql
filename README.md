@@ -13,21 +13,23 @@ Installation
 
 This package can be installed with the go get command:
 
+    go get github.com/arteev/dsql
     go install github.com/arteev/dsql
     
 Releases
 -------- 
     
-    https://github.com/arteev/dsql/releases
-    
-    
-
-[Quick start](https://github.com/arteev/dsql/wiki/Quick-start)
-
-    
+[Look here](https://github.com/arteev/dsql/releases)
+            
 Documentation
 -------------
+
+[Quick start](https://github.com/arteev/dsql/wiki/Quick-start)
     
+Supported RDBMS
+   
+    [+] SQLite
+    [+] FireBird
     
 License
 -------
