@@ -6,12 +6,14 @@ import (
 
 	_ "github.com/arteev/firebirdsql" //
 	_ "github.com/mattn/go-sqlite3"   //
+	_ "github.com/lib/pq"
 )
 
 //KnownEngine - Codes of supported database engines
 var KnownEngine = [...]string{
 	"firebirdsql",
-	"sqlite3",	
+	"sqlite3",
+	"postgres",	
 }
 
 //CheckCodeEngine - check supported database engine
