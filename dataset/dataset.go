@@ -1,9 +1,12 @@
 package dataset
 
+//A Dataset for export to json,xml 
 type Dataset struct {
+	Error   bool
+	TextError string `json:",omitempty" xml:",omitempty"`
 	Name    string `xml:"name,attr"`
-	Columns []*Column `xml:"Columns>Column"`
-	Rows    []*Row `xml:"Rows>Row"`
+	Columns []*Column `xml:"columns>column"`
+	Rows    []*Row `xml:"rows>row"`
 }
 
 //NewDataSet returns new dataset by name

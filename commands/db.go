@@ -41,7 +41,7 @@ func listDatabase() cli.Command {
 			},
 			cli.StringFlag{
 				Name:  "border",
-				Usage: "set type of border table: Thin,Double or None. Default:Thin",
+				Usage: "set type of border table: Thin,Double,Simple or None. Default:Thin",
 			}),
 		Action: func(ctx *cli.Context) {
 			logger.Trace.Println("command list database")
@@ -91,6 +91,8 @@ func listDatabase() cli.Command {
 				tab.SetBorder(fmttab.BorderDouble)
 			case "None":
 				tab.SetBorder(fmttab.BorderNone)
+			case "Simple":
+				tab.SetBorder(fmttab.BorderSimple)
 			}
 			_, err = tab.WriteTo(os.Stdout)
 			if err != nil {

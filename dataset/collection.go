@@ -11,7 +11,7 @@ import (
 type CollectionDataset struct {
 	dsmap map[string]*Dataset
 	//Status   Status
-	Datasets []*Dataset `json:"Databases" xml:"Databases>Database"`
+	Datasets []*Dataset `json:"Databases" xml:"databases>database"`
 }
 
 //NewColllection create new collection of datasets
@@ -57,45 +57,54 @@ func (c *CollectionDataset) GetDatasets() (result []*Dataset) {
 }
 
 //ToJSON returns as JSON
-func (c CollectionDataset) ToJSON() string {    
+func (c CollectionDataset) ToJSON(indent bool) string {
 	var out bytes.Buffer
-	_,err:=c.WriteJSON(&out);
-    if err!=nil{
-        panic(err)
-    }
+	_, err := c.WriteJSON(&out, indent)
+	if err != nil {
+		panic(err)
+	}
 	return out.String()
 }
 
 //ToXML returns as XML
-func (c CollectionDataset) ToXML() string {	
-    var out bytes.Buffer
-	_,err:=c.WriteXML(&out);
-    if err!=nil{
-        panic(err)
-    }
-	return out.String();
+func (c CollectionDataset) ToXML() string {
+	var out bytes.Buffer
+	_, err := c.WriteXML(&out)
+	if err != nil {
+		panic(err)
+	}
+	return out.String()
 }
 
 //WriteJSON write result in io.Writer
-func (c CollectionDataset) WriteJSON(buf io.Writer) (int64, error) {
-	j, err := json.Marshal(c)
-	if err != nil {
-		return 0,err
+func (c CollectionDataset) WriteJSON(buf io.Writer, indent bool) (int, error) {
+	var j []byte
+	var err error
+	if indent {
+		j, err = json.MarshalIndent(c, "", "\t")
+	} else {
+		j, err = json.Marshal(c)
 	}
-	var out bytes.Buffer
-	err = json.Indent(&out, j, "", "\t")
-    if err!=nil {
-        return 0,err
-    }    
-	return out.WriteTo(buf) 
+	if err != nil {
+		return 0, err
+	}
+	/*var out bytes.Buffer
+		err = json.Indent(&out, j, "", "\t")
+	    if err!=nil {
+	        return 0,err
+	    } */
+	//buf
+
+	//return out.WriteTo(buf)
+	return buf.Write(j)
 }
 
 //WriteXML write result in io.Writer
-func (c CollectionDataset) WriteXML(buf io.Writer) (int64, error) {   
-    output, err := xml.MarshalIndent(c, "  ", "    ")
+func (c CollectionDataset) WriteXML(buf io.Writer) (int64, error) {	
+	output, err := xml.MarshalIndent(c , "  ", "    ")
 	if err != nil {
-		return 0,err
-	}      
-    n,err:=buf.Write(output)  	        
-    return int64(n),err
+		return 0, err
+	}
+	n, err := buf.Write(output)
+	return int64(n), err
 }

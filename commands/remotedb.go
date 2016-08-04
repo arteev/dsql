@@ -80,7 +80,7 @@ func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) err
 		subformat := ""
         //TODO: refactor it!
 		if strings.Contains(format, "raw:") {
-			subformat = format[len("json:"):]
+			subformat = format[len("raw:"):]
 			format = "raw"
 		}
         if strings.Contains(format,"table:") {
@@ -248,7 +248,7 @@ func GetCommandsDBS() []cli.Command {
 				},
 				cli.StringFlag{
 					Name:  "border",
-					Usage: "set type of border table: Thin,Double or None. Default:Thin",
+					Usage: "set type of border table: Thin,Double,Simple or None. Default:Thin",
 				}),
 			Action: commonActionDBS(dbFilterFlags, "select", handlersrdb.Select, true,
 				handlersrdb.SelectBefore,

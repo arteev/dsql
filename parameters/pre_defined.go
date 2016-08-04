@@ -12,5 +12,5 @@ var definedParams = [...]preDefinedParams{
 	{"Silent", "false", "silent mode when error query"},
 	{"AutoFitWidthColumns", "true", "auto fit of width for table"},
     {"Fit", "true", "Use for fit table by width window of terminal"},
-	{"BorderTable", "Thin", "None,Thin, Double"},
+	{"BorderTable", "Thin", "None,Thin, Double, Simple"},
 }

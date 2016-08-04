@@ -35,7 +35,7 @@ func listParams() cli.Command {
 			},
 			cli.StringFlag{
 				Name:  "border",
-				Usage: "set type of border table: Thin,Double or None. Default:Thin",
+				Usage: "set type of border table: Thin,Double,Simple or None. Default:Thin",
 			},
 		},
 		Action: func(ctx *cli.Context) {
@@ -77,6 +77,8 @@ func listParams() cli.Command {
 				tab.SetBorder(fmttab.BorderDouble)
 			case "None":
 				tab.SetBorder(fmttab.BorderNone)
+			case "Simple":
+				tab.SetBorder(fmttab.BorderSimple)
 			}
 
 			if _, err := tab.WriteTo(os.Stdout); err != nil {

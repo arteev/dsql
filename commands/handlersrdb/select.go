@@ -155,6 +155,8 @@ func doOutputTable(dbs []db.Database, ctx *action.Context) error {
 		table.SetBorder(fmttab.BorderDouble)
 	case "None":
 		table.SetBorder(fmttab.BorderNone)
+	case "Simple":
+		table.SetBorder(fmttab.BorderSimple)
 	}
 
 	tabex.SetTableSubFormat(table, ctx.GetDef("subformat", "").(string))
@@ -175,11 +177,33 @@ func doOutputTable(dbs []db.Database, ctx *action.Context) error {
 	return nil
 }
 
+func getStrByIdx(params []string, idx int) (string, bool) {
+	if len(params) <= idx {
+		return "", false
+	}
+	return params[idx], true
+}
+
+func fillDatasetsByErrors(datasets *dataset.CollectionDataset, dbs []db.Database, ctx *action.Context) error {
+	for _, d := range dbs {
+		localCtx := ctx.Get("context" + d.Code).(*action.Context)
+		if !localCtx.Get("success").(bool) {
+			ds := datasets.GetOrCreateDataset(d.Code)
+			ds.Error = true
+			ds.TextError = localCtx.Snap.Error().Error()
+		}
+	}
+	return nil
+}
+
 func doOutputJSON(dbs []db.Database, ctx *action.Context) error {
 	datasets := ctx.Get("datasets").(*dataset.CollectionDataset)
+	if err := fillDatasetsByErrors(datasets, dbs, ctx); err != nil {
+		return err
+	}
 	subformat := ctx.GetDef("subformat", "").(string)
 	if subformat == "" {
-		datasets.WriteJSON(os.Stdout)
+		datasets.WriteJSON(os.Stdout, true)
 		return nil
 	}
 	f, err := os.Create(subformat)
@@ -187,12 +211,15 @@ func doOutputJSON(dbs []db.Database, ctx *action.Context) error {
 		return err
 	}
 	defer f.Close()
-	_, err = datasets.WriteJSON(f)
+	_, err = datasets.WriteJSON(f, false)
 	return err
 }
 
 func doOutputXML(dbs []db.Database, ctx *action.Context) error {
 	datasets := ctx.Get("datasets").(*dataset.CollectionDataset)
+	if err := fillDatasetsByErrors(datasets, dbs, ctx); err != nil {
+		return err
+	}
 	subformat := ctx.GetDef("subformat", "").(string)
 	if subformat == "" {
 		datasets.WriteXML(os.Stdout)
@@ -228,13 +255,19 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 
 //SelectError trigger error for select action
 func SelectError(dbs []db.Database, ctx *action.Context) error {
-	done := ctx.Get("chandone")
-	if done != nil {
-		done.(chan bool) <- true
-	}
+
 	logger.Trace.Println("Failed execute")
 	if !ctx.GetDef("silent", false).(bool) {
 		fmt.Println("All requests will fail.")
+	}
+	switch ctx.Get("format") {
+	case "json", "xml":
+		return SelectAfter(dbs, ctx)
+	}
+
+	done := ctx.Get("chandone")
+	if done != nil {
+		done.(chan bool) <- true
 	}
 	return nil
 }

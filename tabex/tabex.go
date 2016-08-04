@@ -60,9 +60,9 @@ func setTable(tab *fmttab.Table, params []string) {
 				tab.SetBorder(fmttab.BorderThin)
 			case "double":
 				tab.SetBorder(fmttab.BorderDouble)
-			case "none":
-			case "false":
-			case "n":
+			case "simple":
+				tab.SetBorder(fmttab.BorderSimple)
+			case "none", "false", "n":
 				tab.SetBorder(fmttab.BorderNone)
 			}
 		}
@@ -115,6 +115,7 @@ func setColumn(tab *fmttab.Table, params []string) {
 
 //SetTableSubFormat set table options from subformat
 func SetTableSubFormat(tab *fmttab.Table, subformat string) {
+	// refactor this
 	if subformat != "" {
 		//column:name=string,width=auto|N,align=left|right,visible=y|n,caption=string;
 		groups := strings.Split(subformat, sepGroups)

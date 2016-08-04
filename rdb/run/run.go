@@ -27,7 +27,7 @@ func Run(dbs []db.Database, sql *sqlcommand.SQLCommand, act action.Actioner, ctx
 	logger.Trace.Println("rdb run")
 	defer logger.Trace.Println("rdb run done")
 	ctx.Set("params", pget)
-	ctx.Set("silent", pget.GetDef(parametergetter.Silent, false).(bool))
+	ctx.Set("silent", pget.GetDef(parametergetter.Silent, false).(bool))	
 	ctx.Snap.Start()
 
 	colParams, err := parameters.GetInstance().All()

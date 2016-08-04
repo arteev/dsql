@@ -2,7 +2,7 @@ package dataset
 
 type Row struct {
 	Num     int        `xml:"num,attr"`
-	DataRow []*DataRow `xml:"Data>Value"`
+	DataRow []*DataRow `xml:"data>value"`
 }
 
 type DataRow struct {

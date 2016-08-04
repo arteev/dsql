@@ -7,5 +7,5 @@ const (
 	Silent              = "Silent"
 	AutoFitWidthColumns = "AutoFitWidthColumns"
 	Fit                 = "Fit"
-	BorderTable         = "BorderTable" //None,Thin, Double
+	BorderTable         = "BorderTable" //None,Thin, Double,Simple
 )
