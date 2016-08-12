@@ -38,7 +38,12 @@ func PrintStatisticQuery(dbs []db.Database, ctx *action.Context) error {
 				rowsaffected := localCtx.GetDef("rowsaffected", int64(0)).(int64)
 				fmt.Printf("%s: Success. Elapsed time:%d msec. Rows count:%d  Rows affected: %d\n", d.Code, mSec, rowcount, rowsaffected)
 			} else {
-				fmt.Printf("%s: Failed! Elapsed time:%d msec. Error message: %s \n", d.Code, mSec, strings.Replace(localCtx.Snap.Error().Error(), "\n", " ", -1))
+
+				var errmsg string
+				if errs := localCtx.Snap.Error(); errs != nil {
+					errmsg = errs.Error()
+				}
+				fmt.Printf("%s: Failed! Elapsed time:%d msec. Error message: %s \n", d.Code, mSec, strings.Replace(errmsg, "\n", " ", -1))
 			}
 		}
 	}

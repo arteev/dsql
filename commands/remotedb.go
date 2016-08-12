@@ -107,6 +107,10 @@ func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) err
 	} else {
 		ctxRun.Set("format", "raw")
 	}
+
+	if ctx.IsSet("timeout") {
+		ctxRun.Set("timeout",ctx.Int("timeout"))
+	}
 	return nil
 }
 
@@ -202,6 +206,11 @@ func flagsForQuery(fs ...cli.Flag) []cli.Flag {
 			Name:  "format",
 			Usage: "Format output: raw[:subformat] (default) | table.  Subformat - use templates: {COLNUM}{ROW}{LINE}{COLUMN}{VALUE}  ",
 			Value: "raw",
+		},
+		cli.IntFlag{
+			Name: "timeout",
+			Usage: "Timeout operation. Default 0",
+			Value: 0,
 		},
 	}
 	result = append(result, fs[:]...)

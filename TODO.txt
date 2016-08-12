@@ -58,11 +58,11 @@ fixed: output - json,xml
 fixed: json,xml subformat: output file
  
 -- release 2.0
+fixed: json+xml: write error,status ?
 todo: timeout query
 todo: select. С сохранением в БД общую (в памяти, на диск)
 todo: exec multi sql, script from file
 todo: select multi sql, script from file
-todo: json: write error,status ?
 
 -- release 3.0
 -- web console

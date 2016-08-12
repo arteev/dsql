@@ -203,8 +203,8 @@ func doOutputJSON(dbs []db.Database, ctx *action.Context) error {
 	}
 	subformat := ctx.GetDef("subformat", "").(string)
 	if subformat == "" {
-		datasets.WriteJSON(os.Stdout, true)
-		return nil
+		_, err := datasets.WriteJSON(os.Stdout, true)
+		return err
 	}
 	f, err := os.Create(subformat)
 	if err != nil {
@@ -275,7 +275,13 @@ func SelectError(dbs []db.Database, ctx *action.Context) error {
 //Select - it action for select command
 func Select(dbs1 db.Database, dsrc *sql.DB, cmd *sqlcommand.SQLCommand, ctx *action.Context) error {
 	logger.Trace.Println("run select", dbs1.Code)
+
+	timeout := ctx.GetDef("timeout", 0).(int)
+	logger.Debug.Printf("run select timeout %d sec", timeout)
+
 	var pint []interface{}
+
+	chanCancel := ctx.Get("iscancel").(chan bool)
 	for _, p := range cmd.Params {
 		pint = append(pint, p)
 	}
@@ -303,6 +309,12 @@ func Select(dbs1 db.Database, dsrc *sql.DB, cmd *sqlcommand.SQLCommand, ctx *act
 
 	rg := rowgetter.MustRowGetter(rw)
 	for {
+		select {
+			case <- chanCancel: 
+				 logger.Info.Println("run select canceled", dbs1.Code)
+				 return fmt.Errorf("cancel")
+			default:
+		}
 		row, ok := rg.Next()
 		if !ok {
 			break
@@ -324,8 +336,6 @@ func Select(dbs1 db.Database, dsrc *sql.DB, cmd *sqlcommand.SQLCommand, ctx *act
 		}
 
 	}
-	if err := rw.Err(); err != nil {
-		return err
-	}
+
 	return nil
 }
