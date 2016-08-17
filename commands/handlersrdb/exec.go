@@ -15,19 +15,44 @@ func Exec(dbContext db.Database, dbHandle *sql.DB, cmd *sqlcommand.SQLCommand, c
 	defer logger.Trace.Println("done exec", dbContext.Code)
 
 	localCtx := ctx.Get("context" + dbContext.Code).(*action.Context)
+	commit := ctx.GetDef("commit",false).(bool)
 	var pint []interface{}
 	for _, p := range cmd.Params {
 		pint = append(pint, p)
 	}
 
-	res, err := dbHandle.Exec(cmd.Script, pint...)
+
+	tx,err:=dbHandle.Begin()	
+	if err!=nil {
+		return err
+	}
+	sqmt, err := tx.Prepare(cmd.Script)
 	if err != nil {
 		return err
+	}	
+	defer sqmt.Close()	 		 
+	res, err := sqmt.Exec(pint...)
+	if err != nil {
+		return err
+	}	
+	defer sqmt.Close()
+
+	if commit {
+		logger.Debug.Printf("%s Transaction commited",dbContext.Code)		
+		if err:=tx.Commit();err != nil {
+			return err
+		}
+	} else {	    	
+		if err:=tx.Rollback();err != nil {
+			return err
+		}
+		logger.Warn.Printf("%s: Transaction rollback.Use a special flag for commit the transaction\n",dbContext.Code)
 	}
 	ra, err := res.RowsAffected()
-	if err != nil {
+	if err != nil {		
 		return err
-	}
+	} 
+	
 	localCtx.IncInt64("rowsaffected", ra)
 	ctx.IncInt64("rowsaffected", ra)
 	return nil

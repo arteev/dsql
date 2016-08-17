@@ -78,26 +78,26 @@ func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) err
 	if ctx.IsSet("format") {
 		format := ctx.String("format")
 		subformat := ""
-        //TODO: refactor it!
+		//TODO: refactor it!
 		if strings.Contains(format, "raw:") {
 			subformat = format[len("raw:"):]
 			format = "raw"
 		}
-        if strings.Contains(format,"table:") {
-            subformat = format[len("table:"):]
-            format = "table"
-        }        
-        if strings.Contains(format,"json:") {
-            subformat = format[len("json:"):]
-            format = "json"
-        }
-        if strings.Contains(format,"xml:") {
-            subformat = format[len("xml:"):]
-            format = "xml"
-        }
+		if strings.Contains(format, "table:") {
+			subformat = format[len("table:"):]
+			format = "table"
+		}
+		if strings.Contains(format, "json:") {
+			subformat = format[len("json:"):]
+			format = "json"
+		}
+		if strings.Contains(format, "xml:") {
+			subformat = format[len("xml:"):]
+			format = "xml"
+		}
 
 		switch format {
-		case "table", "raw", "json","xml":
+		case "table", "raw", "json", "xml":
 			ctxRun.Set("format", format)
 			ctxRun.Set("subformat", subformat)
 			break
@@ -109,7 +109,10 @@ func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) err
 	}
 
 	if ctx.IsSet("timeout") {
-		ctxRun.Set("timeout",ctx.Int("timeout"))
+		ctxRun.Set("timeout", ctx.Int("timeout"))
+	}
+	if ctx.IsSet("commit") {
+		ctxRun.Set("commit", ctx.Bool("commit"))
 	}
 	return nil
 }
@@ -142,7 +145,7 @@ func doTrigger(a actionTriggerDBS, dbs []db.Database, ctx *action.Context) {
 	}
 }
 
-//commonActionDBS. Returns action fro cli app bind with handler for current db item
+//commonActionDBS. Returns action for cli app bind with handler for current db item
 func commonActionDBS(cflags *cliFlags, name string, a action.Actioner, sqlRequired bool, before, after, errtrg actionTriggerDBS) func(ctx *cli.Context) {
 	return func(ctx *cli.Context) {
 		logger.Trace.Println("command", name)
@@ -208,7 +211,7 @@ func flagsForQuery(fs ...cli.Flag) []cli.Flag {
 			Value: "raw",
 		},
 		cli.IntFlag{
-			Name: "timeout",
+			Name:  "timeout",
 			Usage: "Timeout operation. Default 0",
 			Value: 0,
 		},
@@ -251,7 +254,7 @@ func GetCommandsDBS() []cli.Command {
 					Name:  "fit",
 					Usage: "use for fit table by width window of terminal",
 				},
-                cli.BoolFlag{
+				cli.BoolFlag{
 					Name:  "fitcolumns",
 					Usage: "use for auto width columns by contents",
 				},
@@ -267,7 +270,12 @@ func GetCommandsDBS() []cli.Command {
 		cli.Command{
 			Name:  "exec",
 			Usage: "execute sql command on the remote databases",
-			Flags: flagsQuery,
+			Flags: append(flagsQuery,
+				cli.BoolFlag{
+					Name:  "commit",
+					Usage: "Use flag for commit the transaction. Default: false(rollback)",
+				},
+			),
 			Action: commonActionDBS(dbFilterFlags, "exec", handlersrdb.Exec, true,
 				nil,
 				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic),

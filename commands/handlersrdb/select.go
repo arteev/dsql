@@ -285,10 +285,29 @@ func Select(dbs1 db.Database, dsrc *sql.DB, cmd *sqlcommand.SQLCommand, ctx *act
 	for _, p := range cmd.Params {
 		pint = append(pint, p)
 	}
-	rw, err := dsrc.Query(cmd.Script, pint...)
+
+	/*tx,err:=dsrc.Begin()
+	if err!=nil {
+		return err
+	}
+	defer tx.Rollback()
+	rw, err := tx.Query(cmd.Script, pint...)*/
+	tx, err := dsrc.Begin()
 	if err != nil {
 		return err
 	}
+	defer tx.Rollback()
+	stmt, err := tx.Prepare(cmd.Script)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	rw, err := tx.Query(cmd.Script, pint...)
+	if err != nil {
+		return err
+	}
+
 	defer func() {
 		if err := rw.Close(); err != nil {
 			panic(err)
@@ -310,10 +329,10 @@ func Select(dbs1 db.Database, dsrc *sql.DB, cmd *sqlcommand.SQLCommand, ctx *act
 	rg := rowgetter.MustRowGetter(rw)
 	for {
 		select {
-			case <- chanCancel: 
-				 logger.Info.Println("run select canceled", dbs1.Code)
-				 return fmt.Errorf("cancel")
-			default:
+		case <-chanCancel:
+			logger.Info.Println("run select canceled", dbs1.Code)
+			return fmt.Errorf("cancel")
+		default:
 		}
 		row, ok := rg.Next()
 		if !ok {

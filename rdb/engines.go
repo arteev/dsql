@@ -5,19 +5,20 @@ import (
 	"fmt"
 
 	_ "github.com/arteev/firebirdsql" //
-	_ "github.com/mattn/go-sqlite3"   //
+	//	_ "github.com/nakagami/firebirdsql" //
 	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3" //
 )
 
 //KnownEngine - Codes of supported database engines
 var KnownEngine = [...]string{
 	"firebirdsql",
 	"sqlite3",
-	"postgres",	
+	"postgres",
 }
 
 //CheckCodeEngine - check supported database engine
-func CheckCodeEngine(eng string) {    
+func CheckCodeEngine(eng string) {
 	for _, e := range KnownEngine {
 		if e == eng {
 			return

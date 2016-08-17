@@ -109,6 +109,8 @@ func runItem(d db.Database, s *sqlcommand.SQLCommand, doaction action.Actioner, 
 			defer func() {
 				if err := connection.Close(); err != nil {
 					panic(err)
+				} else {
+					logger.Trace.Printf("%s disconnected", d.Code)
 				}
 			}()
 
@@ -144,7 +146,7 @@ func runItem(d db.Database, s *sqlcommand.SQLCommand, doaction action.Actioner, 
 			localCtx.Snap.Done(err)
 			logger.Error.Println(d.Code, err)
 
-		//	ch <- true
+			//	ch <- true
 
 			return
 		}
