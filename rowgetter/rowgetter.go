@@ -36,11 +36,13 @@ func (r *RowGetter) createValue(index int, def *sql.NullString) interface{} {
 		case "time":
 			return &time.Time{}
 		case "big":
-			return &sql.NullFloat64{}
+			return &BigCast{} // &big.Rat{}//&sql.NullFloat64{}
+
 		default:
 			return def
 		}
 	}
+
 	return def
 }
 
@@ -55,7 +57,7 @@ func (r *RowGetter) getTryValue(raw sql.NullString, val interface{}, column int)
 			return t.Format("2006-01-02 15:04:05")
 		}
 		if typecor == "big" {
-			t, ok := val.(*sql.NullFloat64)
+			t, ok := val.(*BigCast)
 			if !ok {
 				panic("not float")
 			}
@@ -85,7 +87,8 @@ func isErrorScanTime(e error) string {
 	if strings.Contains(e.Error(), "unsupported driver -> Scan pair: time.Time -> *string") {
 		return "time"
 	}
-	if strings.Contains(e.Error(), "unsupported driver -> Scan pair: *big.Rat -> *string") {
+	if strings.Contains(e.Error(), "unsupported driver -> Scan pair: *big.Rat -> *string") ||
+		strings.Contains(e.Error(), "type *big.Rat into type") {
 		return "big"
 	}
 	return ""
@@ -116,7 +119,7 @@ func (r *RowGetter) getDefaultTypeCorrect(cortype string) (string, interface{}, 
 	case "time":
 		return "time", &time.Time{}, true
 	case "big":
-		return "big", &sql.NullFloat64{}, true
+		return "big", &BigCast{}, true
 	default:
 	}
 	return "", nil, false
@@ -132,6 +135,7 @@ func (r *RowGetter) Next() ([]interface{}, bool) {
 			if err == nil {
 				break
 			}
+			logger.Error.Println(err)
 			cortype := isErrorScanTime(err)
 			if r.corrected || cortype == "" {
 				logger.Error.Println(err)

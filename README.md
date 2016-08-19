@@ -30,6 +30,7 @@ Supported RDBMS
    
     [+] SQLite
     [+] FireBird
+    [+] PostgreSQL
     
 License
 -------

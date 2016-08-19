@@ -3,12 +3,11 @@ package rdb
 import (
 	"database/sql"
 	"errors"
-	
 
-	_ "github.com/arteev/firebirdsql" //
-	//	_ "github.com/nakagami/firebirdsql" //
+	//_ "github.com/arteev/firebirdsql" //
+	_ "github.com/nakagami/firebirdsql" //
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" //
 	_ "github.com/mattn/go-sqlite3" //
 )
 
