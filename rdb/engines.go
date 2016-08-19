@@ -2,29 +2,33 @@ package rdb
 
 import (
 	"database/sql"
-	"fmt"
+	"errors"
+	
 
 	_ "github.com/arteev/firebirdsql" //
 	//	_ "github.com/nakagami/firebirdsql" //
+
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3" //
 )
 
 //KnownEngine - Codes of supported database engines
-var KnownEngine = [...]string{
-	"firebirdsql",
-	"sqlite3",
-	"postgres",
+var KnownEngine = map[string]interface{}{
+	"firebirdsql": nil,
+	"sqlite3":     nil,
+	"postgres":    nil,
 }
 
+//Errors
+var (
+	ErrUnknowEngine = errors.New("An unknown engine of database")
+)
+
 //CheckCodeEngine - check supported database engine
-func CheckCodeEngine(eng string) {
-	for _, e := range KnownEngine {
-		if e == eng {
-			return
-		}
+func CheckCodeEngine(engine string) {
+	if _, ok := KnownEngine[engine]; !ok {
+		panic(ErrUnknowEngine)
 	}
-	panic(fmt.Errorf("Unknow engine %q", eng))
 }
 
 //Open - returns *sql.DB with check of value engine
