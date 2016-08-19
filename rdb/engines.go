@@ -4,11 +4,9 @@ import (
 	"database/sql"
 	"errors"
 
-	//_ "github.com/arteev/firebirdsql" //
+	_ "github.com/lib/pq"               //
+	_ "github.com/mattn/go-sqlite3"     //
 	_ "github.com/nakagami/firebirdsql" //
-
-	_ "github.com/lib/pq" //
-	_ "github.com/mattn/go-sqlite3" //
 )
 
 //KnownEngine - Codes of supported database engines
@@ -32,6 +30,6 @@ func CheckCodeEngine(engine string) {
 
 //Open - returns *sql.DB with check of value engine
 func Open(name, connectionString string) (*sql.DB, error) {
-	CheckCodeEngine(name)
+	CheckCodeEngine(name)	
 	return sql.Open(name, connectionString)
 }
