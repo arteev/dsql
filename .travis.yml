@@ -5,5 +5,5 @@ go:
 
 script:
   - go get
-  - go test -v ./...
-  - go build
+  - go test -v ./cmd/...
+  - go build -o dsql ./cmd/
