@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/arteev/dsql/db"
-	"github.com/arteev/dsql/rdb/action"
-	"github.com/arteev/dsql/rdb/sqlcommand"
+	"github.com/arteev/dsql/cmd/db"
+	"github.com/arteev/dsql/cmd/rdb/action"
+	"github.com/arteev/dsql/cmd/rdb/sqlcommand"
 )
 
 //PingHandler - Ping the databases

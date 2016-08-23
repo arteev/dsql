@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/arteev/dsql/db"
-	"github.com/arteev/dsql/parameters/parametergetter"
-	"github.com/arteev/dsql/rdb/action"
+	"github.com/arteev/dsql/cmd/db"
+	"github.com/arteev/dsql/cmd/parameters/parametergetter"
+	"github.com/arteev/dsql/cmd/rdb/action"
 )
 
 //PrintStatistic - print common statistic after execute action

@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"sync"
 
-	"github.com/arteev/dsql/dbcontext"
-	"github.com/arteev/dsql/repofile"
+	"github.com/arteev/dsql/cmd/dbcontext"
+	"github.com/arteev/dsql/cmd/repofile"
 )
 
 //DBContextSQLite - impementation DBContext

@@ -1,7 +1,7 @@
 package parametergetter
 
 import (
-	"github.com/arteev/dsql/parameters"
+	"github.com/arteev/dsql/cmd/parameters"
 	"github.com/codegangsta/cli"
 )
 

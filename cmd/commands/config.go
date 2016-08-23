@@ -3,8 +3,8 @@ package commands
 import (
 	"fmt"
 
-	"github.com/arteev/dsql/rdb"
-	"github.com/arteev/dsql/repofile"
+	"github.com/arteev/dsql/cmd/rdb"
+	"github.com/arteev/dsql/cmd/repofile"
 	"github.com/arteev/logger"
 	"github.com/codegangsta/cli"
 )

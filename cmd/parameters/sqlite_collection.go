@@ -3,7 +3,7 @@ package parameters
 import (
 	"database/sql"
 
-	"github.com/arteev/dsql/dbcontext"
+	"github.com/arteev/dsql/cmd/dbcontext"
 )
 
 type sqliteCollectionParams struct {

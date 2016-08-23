@@ -5,8 +5,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/arteev/dsql/dbcontext"
-	"github.com/arteev/dsql/dbcontextsqlite"
+	"github.com/arteev/dsql/cmd/dbcontext"
+	"github.com/arteev/dsql/cmd/dbcontextsqlite"
 )
 
 //Error for parameters

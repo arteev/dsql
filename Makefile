@@ -1,21 +1,15 @@
 default: build
 
 lint:
-	go fmt
-	go vet
-	gometalinter --deadline=15s ./...
+	go fmt ./cmd
+	go vet ./cmd
+	gometalinter --deadline=15s ./cmd/...
 
 build:
-	go fmt
-	go vet
-	go build
+	go fmt ./cmd
+	go vet ./cmd
+	go build -o dsql ./cmd/
 test: build
-	go test -v ./...
-coverage-test:
-	go test -coverprofile=coverage.out
-	go tool cover -func=coverage.out
-	go tool cover -html=coverage.out
-	rm coverage.out
-    
-zip: build	
-	zip dsql-linux-x86_64.zip dsql
+	go test -v ./cmd/...
+   zip: build	
+	zip dsql-linux-$(shell arch).zip dsql
