@@ -19,12 +19,12 @@ This package can be installed with the go get command:
 Releases
 -------- 
     
-[Look here](https://github.com/arteev/dsql/cmd/releases)
+[Look here](https://github.com/arteev/dsql/releases)
             
 Documentation
 -------------
 
-[Quick start](https://github.com/arteev/dsql/cmd/wiki/Quick-start)
+[Quick start](https://github.com/arteev/dsql/wiki/Quick-start)
     
 Supported RDBMS
    

@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"github.com/arteev/dsql/cmd/db"
+	"github.com/arteev/dsql/db"
 	"github.com/codegangsta/cli"
 )
 

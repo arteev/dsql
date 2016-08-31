@@ -1,13 +1,13 @@
 package app
 
 import (
-	"github.com/arteev/dsql/cmd/commands"
+	"github.com/arteev/dsql/commands"
 	"github.com/arteev/logger"
 	"github.com/codegangsta/cli"
 
 	"os"
 
-	"github.com/arteev/dsql/cmd/repofile"
+	"github.com/arteev/dsql/repofile"
 )
 
 const (

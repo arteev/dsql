@@ -3,7 +3,7 @@ package main
 import (
 	//"fmt"
 
-	"github.com/arteev/dsql/cmd/app"
+	"github.com/arteev/dsql/app"
 	//"github.com/arteev/logger"
 	"github.com/arteev/fmttab"
 )

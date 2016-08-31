@@ -3,7 +3,7 @@ package paramsreplace
 import (
 	"strings"
 
-	"github.com/arteev/dsql/cmd/parameters"
+	"github.com/arteev/dsql/parameters"
 )
 
 //Replace from source string by params. ${param} -> value

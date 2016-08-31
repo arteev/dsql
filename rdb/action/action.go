@@ -3,8 +3,8 @@ package action
 import (
 	"database/sql"
 
-	"github.com/arteev/dsql/cmd/db"
-	"github.com/arteev/dsql/cmd/rdb/sqlcommand"
+	"github.com/arteev/dsql/db"
+	"github.com/arteev/dsql/rdb/sqlcommand"
 )
 
 //Actioner - the function of specific actions for each database

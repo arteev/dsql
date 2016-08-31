@@ -3,9 +3,9 @@ package handlersrdb
 import (
 	"database/sql"
 
-	"github.com/arteev/dsql/cmd/db"
-	"github.com/arteev/dsql/cmd/rdb/action"
-	"github.com/arteev/dsql/cmd/rdb/sqlcommand"
+	"github.com/arteev/dsql/db"
+	"github.com/arteev/dsql/rdb/action"
+	"github.com/arteev/dsql/rdb/sqlcommand"
 	"github.com/arteev/logger"
 	"github.com/nsf/termbox-go"
 
@@ -16,10 +16,10 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/arteev/dsql/cmd/dataset"
-	"github.com/arteev/dsql/cmd/parameters/parametergetter"
-	"github.com/arteev/dsql/cmd/rowgetter"
-	"github.com/arteev/dsql/cmd/tabex"
+	"github.com/arteev/dsql/dataset"
+	"github.com/arteev/dsql/parameters/parametergetter"
+	"github.com/arteev/dsql/rowgetter"
+	"github.com/arteev/dsql/tabex"
 	"github.com/arteev/fmttab"
 	"github.com/arteev/fmttab/columns"
 )

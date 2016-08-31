@@ -1,10 +1,10 @@
 package run
 
 import (
-	"github.com/arteev/dsql/cmd/db"
+	"github.com/arteev/dsql/db"
 
-	"github.com/arteev/dsql/cmd/rdb/action"
-	"github.com/arteev/dsql/cmd/rdb/sqlcommand"
+	"github.com/arteev/dsql/rdb/action"
+	"github.com/arteev/dsql/rdb/sqlcommand"
 
 	"sync"
 
@@ -15,10 +15,10 @@ import (
 
 	"time"
 
-	"github.com/arteev/dsql/cmd/parameters"
-	"github.com/arteev/dsql/cmd/parameters/parametergetter"
-	"github.com/arteev/dsql/cmd/parameters/paramsreplace"
-	"github.com/arteev/dsql/cmd/rdb"
+	"github.com/arteev/dsql/parameters"
+	"github.com/arteev/dsql/parameters/parametergetter"
+	"github.com/arteev/dsql/parameters/paramsreplace"
+	"github.com/arteev/dsql/rdb"
 	"github.com/arteev/logger"
 	"golang.org/x/net/context"
 )
