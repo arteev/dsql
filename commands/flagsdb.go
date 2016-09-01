@@ -2,7 +2,7 @@ package commands
 
 import (
 	"github.com/arteev/dsql/db"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 type cliFlagMode byte
@@ -142,7 +142,7 @@ func (f *cliFlags) getvalue(mode cliFlagMode, ltr1, ltr2 string) (res []string) 
 			res = f.ctx.StringSlice(ltr1)
 		}
 		if ltr2 != "" && f.ctx.IsSet(ltr2) {
-			res = f.ctx.StringSlice(ltr2)
+			res = append(res,f.ctx.StringSlice(ltr2)[:]...)
 		}
 		return
 	}

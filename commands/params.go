@@ -9,7 +9,7 @@ import (
 	"github.com/arteev/dsql/parameters/parametergetter"
 	"github.com/arteev/fmttab"
 	"github.com/arteev/logger"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/nsf/termbox-go"
 )
 

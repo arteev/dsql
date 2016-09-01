@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/arteev/dsql/commands"
 	"github.com/arteev/logger"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 
 	"os"
 

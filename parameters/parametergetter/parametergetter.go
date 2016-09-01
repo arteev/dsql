@@ -2,7 +2,7 @@ package parametergetter
 
 import (
 	"github.com/arteev/dsql/parameters"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 type parameterGetterMixed struct {

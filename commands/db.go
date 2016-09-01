@@ -10,7 +10,7 @@ import (
 	"github.com/arteev/dsql/rdb"
 	"github.com/arteev/fmttab"
 	"github.com/arteev/logger"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/nsf/termbox-go"
 )
 

@@ -6,7 +6,7 @@ import (
 	"github.com/arteev/dsql/rdb"
 	"github.com/arteev/dsql/repofile"
 	"github.com/arteev/logger"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 //GetCommandsConfig define cli command config

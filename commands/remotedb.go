@@ -18,7 +18,7 @@ import (
 	"github.com/arteev/dsql/rdb/run"
 	"github.com/arteev/dsql/rdb/sqlcommand"
 	"github.com/arteev/logger"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 //getDatabases return get enabled database with filter by name from args application

@@ -4,6 +4,6 @@ go:
  - tip
 
 script:
-  - go get ./cmd
-  - go test -v ./cmd/...
-  - go build -o dsql ./cmd/
+  - go get 
+  - go test -v 
+  - go build
