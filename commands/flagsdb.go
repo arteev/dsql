@@ -37,6 +37,7 @@ func newCliFlags(opt cliOption) *cliFlags {
 
 //SetContext use before get Database,Engines,Tags
 func (f *cliFlags) SetContext(ctx *cli.Context) {
+	
 	f.ctx = ctx
 }
 
@@ -45,12 +46,12 @@ func getFlagByMode(mode cliFlagMode, Name, Usage string) cli.Flag {
 	case modeFlagUnUsed:
 		return nil
 	case modeFlagSingle:
-		return &cli.StringFlag{
+		return cli.StringFlag{
 			Name:  Name,
 			Usage: Usage,
 		}
 	case modeFlagMulti:
-		return &cli.StringSliceFlag{
+		return cli.StringSliceFlag{
 			Name:  Name,
 			Usage: Usage,
 		}
@@ -85,7 +86,7 @@ func (f *cliFlags) genFlags() (flags []cli.Flag) {
 }
 
 //Flags returns flags for cli.app
-func (f *cliFlags) Flags() []cli.Flag {
+func (f *cliFlags) Flags() []cli.Flag {	
 	return f.flags
 }
 
@@ -98,28 +99,43 @@ func (f cliFlags) checkContext() {
 
 //Databases returns list of databases from cli flags
 func (f *cliFlags) Databases() []string {
+	if f.opt.Databases == modeFlagUnUsed {
+		return nil
+	}
 	return f.exclude(
 		f.getvalue(f.opt.Databases, "databases", "d"),
 		f.getvalue(f.opt.ExcludeDatabases, "nd", ""))
 }
 //ExDatabases returns excluded list of databases from cli flags
 func (f *cliFlags) ExDatabases() []string {
+	if f.opt.ExcludeDatabases == modeFlagUnUsed {
+		return nil
+	}
 	return f.getvalue(f.opt.ExcludeDatabases, "nd", "")
 }
 
 //Engines returns list of engines from cli flags
 func (f *cliFlags) Engines() []string {
+	if f.opt.Engines == modeFlagUnUsed {
+		return nil
+	}
 	return f.getvalue(f.opt.Engines, "engines", "e")
 }
 
 //Tags returns list of tags from cli flags
 func (f *cliFlags) Tags() []string {
+	if f.opt.Tags == modeFlagUnUsed {
+		return nil
+	}
 	return f.exclude(f.getvalue(f.opt.Tags, "tags", "t"),
 		f.getvalue(f.opt.ExcludeTags, "nt", ""))
 
 }
 //ExTags returns excluded list of tags from cli flags
 func (f *cliFlags) ExTags() []string {
+	if f.opt.ExcludeTags == modeFlagUnUsed {
+		return nil
+	}
 	return f.getvalue(f.opt.Engines, "nt", "")
 }
 

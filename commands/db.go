@@ -34,7 +34,8 @@ func listDatabase() cli.Command {
 	return cli.Command{
 		Name:  "list",
 		Usage: "list of databases",
-		Flags: append(dbFilterFlags.Flags(),
+		Flags: 
+		 append(dbFilterFlags.Flags(),
 			cli.BoolFlag{
 				Name:  "fit",
 				Usage: "use for fit table by width window of terminal",
@@ -43,14 +44,14 @@ func listDatabase() cli.Command {
 				Name:  "border",
 				Usage: "set type of border table: Thin,Double,Simple or None. Default:Thin",
 			}),
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			logger.Trace.Println("command list database")
 			dbFilterFlags.SetContext(ctx)
 			d := db.GetInstance()
 			dbs, err := d.All()
 			if err != nil {
-				panic(err)
-			}
+				return err
+			}			
 			for _, e := range dbFilterFlags.Engines() {
 				rdb.CheckCodeEngine(e)
 			}
@@ -94,10 +95,8 @@ func listDatabase() cli.Command {
 			case "Simple":
 				tab.SetBorder(fmttab.BorderSimple)
 			}
-			_, err = tab.WriteTo(os.Stdout)
-			if err != nil {
-				panic(err)
-			}
+			_, err = tab.WriteTo(os.Stdout)		
+			return err
 		},
 	}
 }
