@@ -12,7 +12,7 @@ import (
 
 const (
 	// Version of application (for installation outside)
-	Version = "1.3"
+	Version = "1.5"
 )
 
 //A Application cli

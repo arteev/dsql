@@ -72,6 +72,7 @@ func formatRaw(mask string, row, line int, columns []string, data map[string]int
 func SelectBefore(dbs []db.Database, ctx *action.Context) error {
 	// Prepare data in ctx.datasets
 	logger.Trace.Println("SelectBefore")
+	immediate :=  ctx.GetDef("immediate", false).(bool)
 	format := ctx.Get("format")
 	subformat := ctx.GetDef("subformat", "").(string)
 
@@ -96,8 +97,8 @@ func SelectBefore(dbs []db.Database, ctx *action.Context) error {
 				line++
 				ds := datasets.GetOrCreateDataset(cudata.Code)
 				ds.Append(cudata.Data)
-				if format == "raw" {
-					fmt.Println(formatRaw(subformat, ds.RowsCount(), line, ds.GetColumnsNames(), cudata.Data))
+				if format == "raw"  &&immediate {
+					fmt.Println(formatRaw(subformat, ds.RowsCount(), line, ds.GetColumnsNames(), cudata.Data))				
 				}
 			case <-chanDone:
 				logger.Trace.Println("SelectBefore do done")
@@ -215,6 +216,20 @@ func doOutputJSON(dbs []db.Database, ctx *action.Context) error {
 	return err
 }
 
+func doOutputRaw(dbs []db.Database, ctx *action.Context) error { 
+	datasets := ctx.Get("datasets").(*dataset.CollectionDataset)
+	subformat := ctx.GetDef("subformat", "").(string)
+	line := 0
+	for _, ds := range datasets.GetDatasets() {
+		for _, row := range ds.Rows {
+			line++
+			fmt.Println(formatRaw(subformat, ds.RowsCount(), line, ds.GetColumnsNames(), row.GetDataMap()))
+		}
+	}
+
+	return nil 
+}
+
 func doOutputXML(dbs []db.Database, ctx *action.Context) error {
 	datasets := ctx.Get("datasets").(*dataset.CollectionDataset)
 	if err := fillDatasetsByErrors(datasets, dbs, ctx); err != nil {
@@ -237,6 +252,7 @@ func doOutputXML(dbs []db.Database, ctx *action.Context) error {
 //SelectAfter trigger after for select action
 func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 	done := ctx.Get("chandone")
+	immediate := ctx.GetDef("immediate",false).(bool)
 	logger.Trace.Println("SelectAfter")
 	if done != nil {
 		done.(chan bool) <- true
@@ -248,7 +264,10 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 		return doOutputJSON(dbs, ctx)
 	case "xml":
 		return doOutputXML(dbs, ctx)
-
+	case "raw":
+		if !immediate {
+			return doOutputRaw(dbs,ctx)
+		}
 	}
 	return nil
 }

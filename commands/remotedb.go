@@ -114,6 +114,9 @@ func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) err
 	if ctx.IsSet("commit") {
 		ctxRun.Set("commit", ctx.Bool("commit"))
 	}
+	if ctx.IsSet("immediate") {
+		ctxRun.Set("immediate", ctx.Bool("immediate"))
+	}
 	return nil
 }
 
@@ -209,6 +212,10 @@ func flagsForQuery(fs ...cli.Flag) []cli.Flag {
 			Name:  "format",
 			Usage: "Format output: raw[:subformat] (default) | table|xml|json.  Subformat - use templates: {COLNUM}{ROW}{LINE}{COLUMN}{VALUE}  ",
 			Value: "raw",
+		},
+		cli.BoolFlag{
+			Name:"immediate",
+			Usage: "Whenever possible, output data directly (raw)",			
 		},
 		cli.IntFlag{
 			Name:  "timeout",
