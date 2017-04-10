@@ -18,7 +18,7 @@ var KnownEngine = map[string]interface{}{
 
 //Errors
 var (
-	ErrUnknowEngine = errors.New("An unknown engine of database")
+	ErrUnknowEngine = errors.New("Unknown engine of database")
 )
 
 //CheckCodeEngine - check supported database engine

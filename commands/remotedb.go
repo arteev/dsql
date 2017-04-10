@@ -207,7 +207,7 @@ func flagsForQuery(fs ...cli.Flag) []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  "format",
-			Usage: "Format output: raw[:subformat] (default) | table.  Subformat - use templates: {COLNUM}{ROW}{LINE}{COLUMN}{VALUE}  ",
+			Usage: "Format output: raw[:subformat] (default) | table|xml|json.  Subformat - use templates: {COLNUM}{ROW}{LINE}{COLUMN}{VALUE}  ",
 			Value: "raw",
 		},
 		cli.IntFlag{
