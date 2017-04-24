@@ -6,6 +6,7 @@ import (
 	"github.com/arteev/dsql/app"
 	//"github.com/arteev/logger"
 	"github.com/arteev/fmttab"
+	"github.com/arteev/dsql/repofile"
 )
 
 func main() {
@@ -20,7 +21,10 @@ func main() {
 	}()*/
 	fmttab.Trimend = ">"
 	a := app.New()
+	defer repofile.Done()
 	if err := a.Run(); err != nil {
 		panic(err)
 	}
+
+
 }

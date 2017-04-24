@@ -43,23 +43,26 @@ func (r *DBContextSQLite) init() error {
 	if err != nil {
 		return err
 	}
-	if !r.isExistsMetadata() {
-		if err := r.createDataBase(); err != nil {
-			return err
-		}
+
+	if err := r.migrate(); err != nil {
+		return err
 	}
+
 	return nil
 }
 
-func (r *DBContextSQLite) isExistsMetadata() bool {
+func (r *DBContextSQLite) migrated() bool {
 	rw := r.dbs.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name='databases';")
 	var name string
 	err := rw.Scan(&name)
 	return err == nil && name == "databases"
 }
 
-//createDataBase Create new repository with metadata DB
-func (r *DBContextSQLite) createDataBase() error {
+//migrate Create new repository with metadata DB
+func (r *DBContextSQLite) migrate() error {
+	if r.migrated() {
+		return nil
+	}
 	sqlStmt := `CREATE TABLE databases (
     id               INTEGER NOT NULL
                              PRIMARY KEY AUTOINCREMENT

@@ -9,12 +9,19 @@ import (
 	"runtime"
 
 	"github.com/arteev/logger"
+
+	"io"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 )
 
 //RepositoryFile - current file of repository
 var (
 	repositoryFile = "repository.sqlite"
 	isDefaultRepo  = true
+	mustRemove     = false
+	tmpFile        string
 )
 
 func init() {
@@ -38,7 +45,6 @@ func searchLocation() {
 			repositoryFile = cfgLocation
 			return
 		}
-
 	}
 	//folder dsql
 	absPath, _ := filepath.Abs(path.Dir(os.Args[0]))
@@ -74,7 +80,28 @@ func IsDefault() bool {
 }
 
 //PrepareLocation - make directories for repository files
-func PrepareLocation() {
+func PrepareLocation() {		
+	if url, err := url.Parse(repositoryFile); err == nil {		
+		tmp, err := ioutil.TempFile("", "rep.sqlite3")
+		if err != nil {
+			panic(err)
+		}
+		tmpFile = tmp.Name()
+		mustRemove = true
+		defer tmp.Close()		
+		resp, err := http.Get(repositoryFile)
+		if err != nil {
+			panic(err)
+		}
+		defer resp.Body.Close()
+		if _, err := io.Copy(tmp, resp.Body); err != nil {
+			panic(err)
+		}
+		repositoryFile = "file:///" + tmp.Name() + "?" + url.RawQuery
+		logger.Info.Println("Repository temp:", repositoryFile, "on disk:", tmpFile)
+		return
+	} 	
+
 	dir := filepath.Dir(repositoryFile)
 	if dir == "" || dir == "." {
 		return
@@ -83,5 +110,11 @@ func PrepareLocation() {
 
 	if err := os.MkdirAll(dir, os.FileMode(perm)); err != nil {
 		logger.Error.Println(err)
+	}
+}
+
+func Done() {
+	if mustRemove {
+		os.Remove(tmpFile)
 	}
 }
