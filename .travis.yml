@@ -4,6 +4,8 @@ go:
  - tip
 
 script:
+  - echo $TEST1
   - go get 
   - go test -v 
   - go build
+  
