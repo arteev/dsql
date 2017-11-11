@@ -6,3 +6,9 @@ var (
 	DateBuild = ""
 	GitHash   = ""
 )
+
+//Application info
+const (
+	AppName = "dsql"
+	Authors = "Arteev Aleksey"
+)

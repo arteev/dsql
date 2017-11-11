@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/arteev/dsql/dbcontext"
-	"github.com/arteev/dsql/repofile"
+	"github.com/arteev/dsql/repository"
 )
 
 //DBContextSQLite - impementation DBContext
@@ -38,11 +38,11 @@ func New() *DBContextSQLite {
 
 func (r *DBContextSQLite) init() error {
 	var err error
-	if err = repofile.PrepareLocation(); err != nil {
+	if err = repository.PrepareLocation(); err != nil {
 		return err
 	}
 
-	r.dbs, err = sql.Open("sqlite3", repofile.GetRepositoryFile())
+	r.dbs, err = sql.Open("sqlite3", repository.GetRepositoryFile())
 	if err != nil {
 		return err
 	}

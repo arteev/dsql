@@ -1,4 +1,4 @@
-package repofile
+package repository
 
 import (
 	"fmt"
@@ -19,16 +19,22 @@ import (
 //RepositoryFile - current file of repository
 var (
 	repositoryFile = "repository.sqlite"
-	isDefaultRepo  = true
+	isDefault      = true
 	mustRemove     = false
 	tmpFile        string
 )
 
-func init() {
-	searchLocation()
+func Init() {
+	search()
 }
 
-func searchLocation() {
+func Done() {
+	if mustRemove {
+		os.Remove(tmpFile)
+	}
+}
+
+func search() {
 	//workdir
 	if _, err := os.Stat(repositoryFile); err == nil {
 		return
@@ -59,14 +65,18 @@ func searchLocation() {
 }
 
 //SetRepositoryFile - set new location repository file
-func SetRepositoryFile(filename string) {
-	if !isDefaultRepo {
-		panic(fmt.Errorf("can't twice change repository file "))
+func SetRepositoryFile(filename string) error {
+	if filename == "" {
+		return nil
+	}
+	if !isDefault {
+		return fmt.Errorf("can't twice change repository file ")
 	}
 	if filename != "" {
-		isDefaultRepo = false
+		isDefault = false
 		repositoryFile = filename
 	}
+	return nil
 }
 
 //GetRepositoryFile - get current location repository file
@@ -76,7 +86,7 @@ func GetRepositoryFile() string {
 
 //IsDefault returns location repository file is default
 func IsDefault() bool {
-	return isDefaultRepo
+	return isDefault
 }
 
 //PrepareLocation - make directories for repository files
@@ -111,10 +121,4 @@ func PrepareLocation() error {
 		return err
 	}
 	return nil
-}
-
-func Done() {
-	if mustRemove {
-		os.Remove(tmpFile)
-	}
 }

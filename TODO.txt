@@ -75,3 +75,4 @@ todo: проверять uri при добавлении/обновлении
 todo: readme.md: coverage 
 todo: Makefile
 todo: refactor Version
+todo: блокировать изменение репозитория с http

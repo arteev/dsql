@@ -9,7 +9,7 @@ import (
 
 	"os"
 
-	"github.com/arteev/dsql/repofile"
+	"github.com/arteev/dsql/repository"
 )
 
 //A Application cli
@@ -19,7 +19,7 @@ type Application struct {
 }
 
 //New cli application
-func New() *Application {
+func newApp() *Application {
 	a := &Application{
 		cli: newcli(),
 	}
@@ -35,9 +35,8 @@ func newcli() *cli.App {
 	c.Version = fmt.Sprintf("%s (%s) githash:%s", Version, DateBuild, GitHash)
 	c.Description = "It's the tool for the simultaneous execution  SQL statements in multiple databases"
 	c.Copyright = "MIT Licence"
-	c.Name = "dsql"
-
-	c.Author = "Arteev Aleksey"
+	c.Name = AppName
+	c.Author = Authors
 	return c
 }
 
@@ -68,19 +67,16 @@ func (a *Application) globalFlags() *Application {
 }
 
 func (a *Application) defineCommands() *Application {
+	arr := [][]cli.Command{
+		commands.GetCommandsListDB(),
+		commands.GetCommandsParams(),
+		commands.GetCommandsDBS(),
+		commands.GetCommandsConfig(),
+	}
 	a.cli.Commands = []cli.Command{}
-	a.cli.Commands = append(a.cli.Commands,
-		commands.GetCommandsListDB()...,
-	)
-	a.cli.Commands = append(a.cli.Commands,
-		commands.GetCommandsParams()...,
-	)
-	a.cli.Commands = append(a.cli.Commands,
-		commands.GetCommandsDBS()...,
-	)
-	a.cli.Commands = append(a.cli.Commands,
-		commands.GetCommandsConfig()...,
-	)
+	for _, item := range arr {
+		a.cli.Commands = append(a.cli.Commands, item...)
+	}
 	return a
 }
 
@@ -89,14 +85,17 @@ func (a *Application) beforeAction() *Application {
 		a.verbose = ctx.GlobalInt("verbose")
 		logger.InitToConsole(logger.Level(a.verbose))
 		logger.Info.Println("Verbose level:", logger.CurrentLevel)
+
+		var rfile string
 		if ctx.GlobalIsSet("repo") {
-			repofile.SetRepositoryFile(ctx.GlobalString("repo"))
+			rfile = ctx.GlobalString("repo")
 		} else if ctx.GlobalIsSet("r") {
-			repofile.SetRepositoryFile(ctx.GlobalString("r"))
+			rfile = ctx.GlobalString("r")
 		}
+		repository.SetRepositoryFile(rfile)
 
 		logger.Info.Println("Verbose level:", logger.CurrentLevel)
-		logger.Info.Println("Repository location:", repofile.GetRepositoryFile(), "Default:", repofile.IsDefault())
+		logger.Info.Println("Repository location:", repository.GetRepositoryFile(), "Default:", repository.IsDefault())
 		return nil
 	}
 	return a
@@ -104,7 +103,12 @@ func (a *Application) beforeAction() *Application {
 
 //Run - entry point to the cli app.
 func Run() error {
-	a := New()
+	logger.InitToConsole(logger.LevelTrace)
+
+	repository.Init()
+	defer repository.Done()
+
+	a := newApp()
 	return a.cli.Run(os.Args)
 }
 
