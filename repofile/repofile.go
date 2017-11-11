@@ -80,37 +80,37 @@ func IsDefault() bool {
 }
 
 //PrepareLocation - make directories for repository files
-func PrepareLocation() {
+func PrepareLocation() error {
 	if url, err := url.Parse(repositoryFile); err == nil && url.Scheme != "" {
 		tmp, err := ioutil.TempFile("", "rep.sqlite3")
 		if err != nil {
-			panic(err)
+			return err
 		}
 		tmpFile = tmp.Name()
 		mustRemove = true
 		defer tmp.Close()
 		resp, err := http.Get(repositoryFile)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		defer resp.Body.Close()
 		if _, err := io.Copy(tmp, resp.Body); err != nil {
-			panic(err)
+			return err
 		}
 		repositoryFile = "file:///" + tmp.Name() + "?" + url.RawQuery
 		logger.Info.Println("Repository temp:", repositoryFile, "on disk:", tmpFile)
-		return
+		return nil
 	}
 
 	dir := filepath.Dir(repositoryFile)
 	if dir == "" || dir == "." {
-		return
+		return nil
 	}
 	perm := 0700
-
 	if err := os.MkdirAll(dir, os.FileMode(perm)); err != nil {
-		logger.Error.Println(err)
+		return err
 	}
+	return nil
 }
 
 func Done() {

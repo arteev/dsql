@@ -1,11 +1,8 @@
-Can do this:
-    ping
-    exec/select from command line (direct output into console)
 
 fixed: GitHub:Readme.md
 fixed: GitHub:badge build
 todo: examples
-todo: GitHub:Quick start
+fixed: GitHub:Quick start
 
 
 -- release 1.0
@@ -59,7 +56,10 @@ fixed: json,xml subformat: output file
 fixed: json+xml: write error,status
 fixed: timeout query
 fixed: changes lock
- 
+fixed: ping
+fixed: exec/select from command line (direct output into console)
+
+
 -- release 2.0
 todo: select. С сохранением в БД общую (в памяти, на диск)
 todo: exec multi sql, script from file
@@ -68,3 +68,10 @@ todo: select multi sql, script from file
 -- release 3.0
 -- web console
 json,xml - subformat: ident, space, pipe when "-"
+
+
+
+todo: проверять uri при добавлении/обновлении
+todo: readme.md: coverage 
+todo: Makefile
+todo: refactor Version

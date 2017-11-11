@@ -38,7 +38,10 @@ func New() *DBContextSQLite {
 
 func (r *DBContextSQLite) init() error {
 	var err error
-	repofile.PrepareLocation()
+	if err = repofile.PrepareLocation(); err != nil {
+		return err
+	}
+
 	r.dbs, err = sql.Open("sqlite3", repofile.GetRepositoryFile())
 	if err != nil {
 		return err

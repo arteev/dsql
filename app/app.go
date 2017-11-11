@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/arteev/dsql/commands"
 	"github.com/arteev/logger"
 	"github.com/urfave/cli"
@@ -8,11 +10,6 @@ import (
 	"os"
 
 	"github.com/arteev/dsql/repofile"
-)
-
-const (
-	// Version of application (for installation outside)
-	Version = "1.5"
 )
 
 //A Application cli
@@ -35,10 +32,11 @@ func New() *Application {
 //newcli. Create new instance of cli.App with commands, flags, etc.
 func newcli() *cli.App {
 	c := cli.NewApp()
-	c.Version = Version
+	c.Version = fmt.Sprintf("%s (%s) githash:%s", Version, DateBuild, GitHash)
+	c.Description = "It's the tool for the simultaneous execution  SQL statements in multiple databases"
 	c.Copyright = "MIT Licence"
 	c.Name = "dsql"
-	c.Usage = "It is a tool for the simultaneous execution of multiple SQL statements in the database"
+
 	c.Author = "Arteev Aleksey"
 	return c
 }
@@ -105,7 +103,8 @@ func (a *Application) beforeAction() *Application {
 }
 
 //Run - entry point to the cli app.
-func (a *Application) Run() error {
+func Run() error {
+	a := New()
 	return a.cli.Run(os.Args)
 }
 
