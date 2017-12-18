@@ -47,10 +47,12 @@ func foundInSlice(strs columns.Columns, value string) bool {
 }
 
 //formatRaw returns formatted string for output as Raw
-func formatRaw(mask string, row, line int, columns []string, data map[string]interface{}) string {
+func formatRaw(ctx *action.Context, mask string, row, line int, columns []string, data map[string]interface{}) (string, error) {
 	if mask == "" {
 		mask = "{COLUMN}:\"{VALUE}\";"
 	}
+	aliasSeparator := ctx.GetDef("sepalias", ": ").(string)
+	alias := data["_CODE_"].(string)
 	buf := &bytes.Buffer{}
 	for c, col := range columns {
 		val, ok := data[col]
@@ -61,18 +63,18 @@ func formatRaw(mask string, row, line int, columns []string, data map[string]int
 			currentOut = strings.Replace(currentOut, "{LINE}", strconv.Itoa(line), -1)
 			currentOut = strings.Replace(currentOut, "{ROW}", strconv.Itoa(row), -1)
 			if _, err := buf.WriteString(currentOut); err != nil {
-				panic(err)
+				return "", err
 			}
 		}
 	}
-	return data["_CODE_"].(string) + ": " + buf.String()
+	return alias + aliasSeparator + buf.String(), nil
 }
 
 //SelectBefore trigger before for select action
 func SelectBefore(dbs []db.Database, ctx *action.Context) error {
 	// Prepare data in ctx.datasets
 	logger.Trace.Println("SelectBefore")
-	immediate :=  ctx.GetDef("immediate", false).(bool)
+	immediate := ctx.GetDef("immediate", false).(bool)
 	format := ctx.Get("format")
 	subformat := ctx.GetDef("subformat", "").(string)
 
@@ -97,8 +99,13 @@ func SelectBefore(dbs []db.Database, ctx *action.Context) error {
 				line++
 				ds := datasets.GetOrCreateDataset(cudata.Code)
 				ds.Append(cudata.Data)
-				if format == "raw"  &&immediate {
-					fmt.Println(formatRaw(subformat, ds.RowsCount(), line, ds.GetColumnsNames(), cudata.Data))				
+				if format == "raw" && immediate {
+					data, err := formatRaw(ctx, subformat, ds.RowsCount(), line, ds.GetColumnsNames(), cudata.Data)
+					if err != nil {
+						logger.Error.Println(err)
+					} else {
+						fmt.Println(data)
+					}
 				}
 			case <-chanDone:
 				logger.Trace.Println("SelectBefore do done")
@@ -216,18 +223,23 @@ func doOutputJSON(dbs []db.Database, ctx *action.Context) error {
 	return err
 }
 
-func doOutputRaw(dbs []db.Database, ctx *action.Context) error { 
+func doOutputRaw(dbs []db.Database, ctx *action.Context) error {
 	datasets := ctx.Get("datasets").(*dataset.CollectionDataset)
 	subformat := ctx.GetDef("subformat", "").(string)
+
 	line := 0
 	for _, ds := range datasets.GetDatasets() {
 		for _, row := range ds.Rows {
 			line++
-			fmt.Println(formatRaw(subformat, ds.RowsCount(), line, ds.GetColumnsNames(), row.GetDataMap()))
+			data, err := formatRaw(ctx, subformat, ds.RowsCount(), line, ds.GetColumnsNames(), row.GetDataMap())
+			if err != nil {
+				return err
+			}
+			fmt.Println(data)
 		}
 	}
 
-	return nil 
+	return nil
 }
 
 func doOutputXML(dbs []db.Database, ctx *action.Context) error {
@@ -252,7 +264,7 @@ func doOutputXML(dbs []db.Database, ctx *action.Context) error {
 //SelectAfter trigger after for select action
 func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 	done := ctx.Get("chandone")
-	immediate := ctx.GetDef("immediate",false).(bool)
+	immediate := ctx.GetDef("immediate", false).(bool)
 	logger.Trace.Println("SelectAfter")
 	if done != nil {
 		done.(chan bool) <- true
@@ -266,7 +278,7 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 		return doOutputXML(dbs, ctx)
 	case "raw":
 		if !immediate {
-			return doOutputRaw(dbs,ctx)
+			return doOutputRaw(dbs, ctx)
 		}
 	}
 	return nil

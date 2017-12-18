@@ -117,6 +117,10 @@ func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) err
 	if ctx.IsSet("immediate") {
 		ctxRun.Set("immediate", ctx.Bool("immediate"))
 	}
+	if ctx.IsSet("sepalias") {
+		ctxRun.Set("sepalias",ctx.String("sepalias"))
+
+	}
 	return nil
 }
 
@@ -210,7 +214,7 @@ func flagsForQuery(fs ...cli.Flag) []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  "format",
-			Usage: "Format output: raw[:subformat] (default) | table|xml|json.  Subformat - use templates: {COLNUM}{ROW}{LINE}{COLUMN}{VALUE}  ",
+			Usage: "Format output: raw[:subformat] (default) | table|xml|json.  Subformat - use templates: {ALIAS}{COLNUM}{ROW}{LINE}{COLUMN}{VALUE}  ",
 			Value: "raw",
 		},
 		cli.BoolFlag{
@@ -268,6 +272,10 @@ func GetCommandsDBS() []cli.Command {
 				cli.StringFlag{
 					Name:  "border",
 					Usage: "set type of border table: Thin,Double,Simple or None. Default:Thin",
+				},
+				cli.StringFlag{
+					Name: "sepalias",
+					Usage:"separator alias for output raw. default ': '",
 				}),
 			Action: commonActionDBS(dbFilterFlags, "select", handlersrdb.Select, true,
 				handlersrdb.SelectBefore,

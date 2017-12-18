@@ -1,4 +1,4 @@
-VERSION="1.6.20"
+VERSION="1.6.22"
 BUILD_TIME=`date -u '+%Y-%m-%d_%I:%M:%S%p'`
 GITHEAD=`git rev-parse HEAD`
 LDFLAGS=-ldflags "-X github.com/arteev/dsql/app.Version=${VERSION} -X github.com/arteev/dsql/app.DateBuild=${BUILD_TIME}  -X github.com/arteev/dsql/app.GitHash=${GITHEAD}" 
@@ -8,7 +8,7 @@ default: build
 lint:
 	go fmt 
 	go vet 
-	gometalinter --deadline=15s /...
+	gometalinter --deadline=15s ./...
 
 build: lint
 	go build ${LDFLAGS} -o dsql 
