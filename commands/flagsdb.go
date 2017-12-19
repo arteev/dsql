@@ -1,6 +1,10 @@
 package commands
 
 import (
+	"bufio"
+	"os"
+	"strings"
+
 	"github.com/arteev/dsql/db"
 	"github.com/urfave/cli"
 )
@@ -37,7 +41,7 @@ func newCliFlags(opt cliOption) *cliFlags {
 
 //SetContext use before get Database,Engines,Tags
 func (f *cliFlags) SetContext(ctx *cli.Context) {
-	
+
 	f.ctx = ctx
 }
 
@@ -60,7 +64,7 @@ func getFlagByMode(mode cliFlagMode, Name, Usage string) cli.Flag {
 }
 
 func (f *cliFlags) genFlags() (flags []cli.Flag) {
-	df := getFlagByMode(f.opt.Databases, "databases,d", "use for the concrete database(s)")
+	df := getFlagByMode(f.opt.Databases, "databases,d", "use for the concrete database(s). Use load from file -d @filename")
 	if df != nil {
 		flags = append(flags, df)
 	}
@@ -86,7 +90,7 @@ func (f *cliFlags) genFlags() (flags []cli.Flag) {
 }
 
 //Flags returns flags for cli.app
-func (f *cliFlags) Flags() []cli.Flag {	
+func (f *cliFlags) Flags() []cli.Flag {
 	return f.flags
 }
 
@@ -102,10 +106,36 @@ func (f *cliFlags) Databases() []string {
 	if f.opt.Databases == modeFlagUnUsed {
 		return nil
 	}
+
 	return f.exclude(
-		f.getvalue(f.opt.Databases, "databases", "d"),
-		f.getvalue(f.opt.ExcludeDatabases, "nd", ""))
+		loadValueFromFile(f.getvalue(f.opt.Databases, "databases", "d")),
+		loadValueFromFile(f.getvalue(f.opt.ExcludeDatabases, "nd", "")))
 }
+
+func loadValueFromFile(vals []string) []string {
+	res := make([]string, 0)
+	for _, v := range vals {
+		if strings.HasPrefix(v, "@") {
+			fname := strings.TrimLeft(v, "@")
+			f, err := os.Open(fname)
+			if err == nil {
+				farr := make([]string, 0)
+				scanner := bufio.NewScanner(f)
+				for scanner.Scan() {
+					farr = append(farr, scanner.Text())
+				}
+				f.Close()
+				if err := scanner.Err(); err == nil {
+					res = append(res, farr[:]...)
+					continue
+				}
+			}
+		}
+		res = append(res, v)
+	}
+	return res
+}
+
 //ExDatabases returns excluded list of databases from cli flags
 func (f *cliFlags) ExDatabases() []string {
 	if f.opt.ExcludeDatabases == modeFlagUnUsed {
@@ -131,6 +161,7 @@ func (f *cliFlags) Tags() []string {
 		f.getvalue(f.opt.ExcludeTags, "nt", ""))
 
 }
+
 //ExTags returns excluded list of tags from cli flags
 func (f *cliFlags) ExTags() []string {
 	if f.opt.ExcludeTags == modeFlagUnUsed {
@@ -138,7 +169,6 @@ func (f *cliFlags) ExTags() []string {
 	}
 	return f.getvalue(f.opt.Engines, "nt", "")
 }
-
 
 func (f *cliFlags) getvalue(mode cliFlagMode, ltr1, ltr2 string) (res []string) {
 	f.checkContext()
@@ -158,7 +188,7 @@ func (f *cliFlags) getvalue(mode cliFlagMode, ltr1, ltr2 string) (res []string) 
 			res = f.ctx.StringSlice(ltr1)
 		}
 		if ltr2 != "" && f.ctx.IsSet(ltr2) {
-			res = append(res,f.ctx.StringSlice(ltr2)[:]...)
+			res = append(res, f.ctx.StringSlice(ltr2)[:]...)
 		}
 		return
 	}
@@ -187,5 +217,5 @@ func (f *cliFlags) ApplyTo(dbs db.CollectionRepositoryDB) {
 		AddFilterExcludeDB(f.ExDatabases()...).
 		AddFilterIncludeEngine(f.Engines()...).
 		AddFilterTag(f.Tags()...).
-        AddFilterExcludeTag(f.ExTags()...)
+		AddFilterExcludeTag(f.ExTags()...)
 }

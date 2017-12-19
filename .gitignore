@@ -33,3 +33,4 @@ dsql
 _examples/myrepo
 
 dsql*.zip
+*.retry

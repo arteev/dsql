@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/arteev/dsql/db"
 	"github.com/arteev/dsql/parameters/parametergetter"
@@ -18,9 +19,9 @@ func PrintStatistic(dbs []db.Database, ctx *action.Context) error {
 		mSec := ctx.Snap.Finished().Sub(ctx.Snap.Started()).Nanoseconds() / 1000 / 1000
 		exec := ctx.GetDef("exec", 0).(int)
 		success := ctx.GetDef("success", 0).(int)
-		failed := ctx.GetDef("failed", 0).(int)
-		buf.WriteString(fmt.Sprintf("Executed: %-4d Success:%-3d (%3.2f%%) Failed:%-3d \n", exec, success, float64(success)/float64(exec)*100, failed))
-		buf.WriteString(fmt.Sprintf("Completed: %v msec", mSec))
+		//failed := ctx.GetDef("failed", 0).(int)
+		buf.WriteString(fmt.Sprintf("Executed: %-4d Success:%-3d (%3.2f%%) Failed:%-3d \n", exec, success, float64(success)/float64(exec)*100, exec-success))
+		buf.WriteString(fmt.Sprintf("Completed: %v ",  time.Duration(mSec)*time.Millisecond ))
 		fmt.Println(buf.String())
 	}
 	return nil

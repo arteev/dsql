@@ -163,13 +163,7 @@ func commonActionDBS(cflags *cliFlags, name string, a action.Actioner, sqlRequir
 		d := db.GetInstance()
 		defer checkErr(d.Close)
 		cflags.SetContext(ctx)
-		dbsSource, err := getDatabases(cflags, d)
-		if err != nil {
-			panic(err)
-		}
-		if len(dbsSource) == 0 {
-			panic(fmt.Errorf("databases not found"))
-		}
+		
 
 		paramGetter := createParametersGetter(ctx)
 
@@ -187,6 +181,15 @@ func commonActionDBS(cflags *cliFlags, name string, a action.Actioner, sqlRequir
 		if err := parseOthersFlagsForRunContext(ctx, contextRun); err != nil {
 			panic(err)
 		}
+
+		dbsSource, err := getDatabases(cflags, d)
+		if err != nil {
+			panic(err)
+		}
+		if len(dbsSource) == 0 {
+			panic(fmt.Errorf("databases not found"))
+		}
+		
 
 		doTrigger(before, dbsSource, contextRun)
 		if _, e := run.Run(dbsSource, sc, a, contextRun, paramGetter); e != nil {
@@ -286,8 +289,8 @@ func GetCommandsDBS() []cli.Command {
 				}),
 			Action: commonActionDBS(dbFilterFlags, "select", handlersrdb.Select, true,
 				handlersrdb.SelectBefore,
-				muxActionTriggers(handlersrdb.SelectAfter, handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic),
-				muxActionTriggers(handlersrdb.SelectError, handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic)),
+				muxActionTriggers(handlersrdb.SelectAfter,  handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic,handlersrdb.WriteRetryFile),
+				muxActionTriggers(handlersrdb.SelectError,  handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic,handlersrdb.WriteRetryFile)),
 		},
 		cli.Command{
 			Name:  "exec",
@@ -300,8 +303,8 @@ func GetCommandsDBS() []cli.Command {
 			),
 			Action: commonActionDBS(dbFilterFlags, "exec", handlersrdb.Exec, true,
 				nil,
-				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic),
-				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic)),
+				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic,handlersrdb.WriteRetryFile),
+				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic,handlersrdb.WriteRetryFile)),
 		},
 	}
 }
