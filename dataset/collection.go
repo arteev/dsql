@@ -57,9 +57,9 @@ func (c *CollectionDataset) GetDatasets() (result []*Dataset) {
 }
 
 //ToJSON returns as JSON
-func (c CollectionDataset) ToJSON(indent bool) string {
+func (c CollectionDataset) ToJSON(indent string) string {
 	var out bytes.Buffer
-	_, err := c.WriteJSON(&out, indent)
+	_, err := c.WriteJSON(&out, indent )
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +69,7 @@ func (c CollectionDataset) ToJSON(indent bool) string {
 //ToXML returns as XML
 func (c CollectionDataset) ToXML() string {
 	var out bytes.Buffer
-	_, err := c.WriteXML(&out)
+	_, err := c.WriteXML(&out,"    ")
 	if err != nil {
 		panic(err)
 	}
@@ -77,31 +77,30 @@ func (c CollectionDataset) ToXML() string {
 }
 
 //WriteJSON write result in io.Writer
-func (c CollectionDataset) WriteJSON(buf io.Writer, indent bool) (int, error) {
+func (c CollectionDataset) WriteJSON(buf io.Writer, indent string) (int, error) {
 	var j []byte
 	var err error
-	if indent {
-		j, err = json.MarshalIndent(c, "", "\t")
+	if indent!="" {
+		j, err = json.MarshalIndent(c, "", indent)
 	} else {
 		j, err = json.Marshal(c)
 	}
 	if err != nil {
 		return 0, err
-	}
-	/*var out bytes.Buffer
-		err = json.Indent(&out, j, "", "\t")
-	    if err!=nil {
-	        return 0,err
-	    } */
-	//buf
-
-	//return out.WriteTo(buf)
+	}	
 	return buf.Write(j)
 }
 
 //WriteXML write result in io.Writer
-func (c CollectionDataset) WriteXML(buf io.Writer) (int64, error) {	
-	output, err := xml.MarshalIndent(c , "  ", "    ")
+func (c CollectionDataset) WriteXML(buf io.Writer,indent string) (int64, error) {	
+	var ( output []byte
+	 err  error
+	)
+	if indent!=""  {
+		output,err = xml.MarshalIndent(c , "", indent)
+	} else  {
+		output,err = xml.Marshal(c)
+	}
 	if err != nil {
 		return 0, err
 	}

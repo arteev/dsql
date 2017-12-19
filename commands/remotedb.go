@@ -121,6 +121,9 @@ func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) err
 		ctxRun.Set("sepalias",ctx.String("sepalias"))
 
 	}
+	if ctx.IsSet("indent") {
+		ctxRun.Set("indent",ctx.String("indent"))
+	}
 	return nil
 }
 
@@ -276,6 +279,10 @@ func GetCommandsDBS() []cli.Command {
 				cli.StringFlag{
 					Name: "sepalias",
 					Usage:"separator alias for output raw. default ': '",
+				},
+				cli.StringFlag{
+					Name: "indent",
+					Usage:"indent output for format:xml,json. Default xml:4 spaces; json:\\t",
 				}),
 			Action: commonActionDBS(dbFilterFlags, "select", handlersrdb.Select, true,
 				handlersrdb.SelectBefore,

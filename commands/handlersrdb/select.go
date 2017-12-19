@@ -206,12 +206,13 @@ func fillDatasetsByErrors(datasets *dataset.CollectionDataset, dbs []db.Database
 
 func doOutputJSON(dbs []db.Database, ctx *action.Context) error {
 	datasets := ctx.Get("datasets").(*dataset.CollectionDataset)
+	indent := ctx.GetDef("indent","\t").(string)
 	if err := fillDatasetsByErrors(datasets, dbs, ctx); err != nil {
 		return err
 	}
 	subformat := ctx.GetDef("subformat", "").(string)
 	if subformat == "" {
-		_, err := datasets.WriteJSON(os.Stdout, true)
+		_, err := datasets.WriteJSON(os.Stdout, indent)
 		return err
 	}
 	f, err := os.Create(subformat)
@@ -219,7 +220,7 @@ func doOutputJSON(dbs []db.Database, ctx *action.Context) error {
 		return err
 	}
 	defer f.Close()
-	_, err = datasets.WriteJSON(f, false)
+	_, err = datasets.WriteJSON(f, indent)
 	return err
 }
 
@@ -244,12 +245,13 @@ func doOutputRaw(dbs []db.Database, ctx *action.Context) error {
 
 func doOutputXML(dbs []db.Database, ctx *action.Context) error {
 	datasets := ctx.Get("datasets").(*dataset.CollectionDataset)
+	indent := ctx.GetDef("indent","    ").(string)
 	if err := fillDatasetsByErrors(datasets, dbs, ctx); err != nil {
 		return err
 	}
 	subformat := ctx.GetDef("subformat", "").(string)
 	if subformat == "" {
-		datasets.WriteXML(os.Stdout)
+		datasets.WriteXML(os.Stdout,indent)
 		return nil
 	}
 	f, err := os.Create(subformat)
@@ -257,7 +259,7 @@ func doOutputXML(dbs []db.Database, ctx *action.Context) error {
 		return err
 	}
 	defer f.Close()
-	_, err = datasets.WriteXML(f)
+	_, err = datasets.WriteXML(f,indent)
 	return err
 }
 
