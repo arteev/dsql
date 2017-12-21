@@ -4,12 +4,12 @@
 
 SET SQL DIALECT 3;
 
-create database '/tmp/dsql.exsample1.fdb'
+create database '/tmp/firebird/dsql.exsample1.fdb'
 PAGE_SIZE = 4096
 DEFAULT CHARACTER SET UTF8;
 commit;
 
-connect '/tmp/dsql.exsample1.fdb';
+connect '/tmp/firebird/dsql.exsample1.fdb';
 
 CREATE TABLE Employee (
   id INTEGER not null,  
@@ -121,12 +121,12 @@ commit;
 
 -----------------------------------------------------
 
-create database '/tmp/dsql.exsample2.fdb'
+create database '/tmp/firebird/dsql.exsample2.fdb'
 PAGE_SIZE = 4096
 DEFAULT CHARACTER SET UTF8;
 commit;
 
-connect '/tmp/dsql.exsample2.fdb';
+connect '/tmp/firebird/dsql.exsample2.fdb';
 
 CREATE TABLE Employee (
   id INTEGER not null,  

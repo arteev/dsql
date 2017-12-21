@@ -13,6 +13,9 @@ lint:
 build: 
 	go build ${LDFLAGS} -o dsql 	
 
+install:
+	go install ${LDFLAGS}
+
 cross:
 	CGO_ENABLED=1 GOOS=windows GOARCH= CC=x86_64-w64-mingw32-gcc-win32 go build ${LDFLAGS} -o dsql.exe
 

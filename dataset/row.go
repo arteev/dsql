@@ -1,5 +1,9 @@
 package dataset
 
+import (
+	"encoding/xml"
+)
+
 type Row struct {
 	Num     int        `xml:"num,attr"`
 	DataRow []*DataRow `xml:"data>value"`
@@ -26,4 +30,15 @@ func (r *Row) GetDataMap() (result map[string]interface{}) {
 		result[d.Column] = d.Value
 	}
 	return
+}
+
+func (d *DataRow) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	if d.Column == "_CODE_" {
+		return nil
+	}
+	start.Attr = []xml.Attr{xml.Attr{Name: xml.Name{Local: "column"}, Value: d.Column}}
+	e.EncodeToken(start)
+	e.EncodeToken(xml.CharData(d.Value.(string)))
+	e.EncodeToken(xml.EndElement{Name: start.Name})
+	return nil
 }
