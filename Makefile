@@ -10,14 +10,21 @@ lint:
 	go vet 
 	gometalinter --deadline=15s ./...
 
-build: lint
-	go build ${LDFLAGS} -o dsql 
+build: 
+	go build ${LDFLAGS} -o dsql 	
+
+cross:
+	CGO_ENABLED=1 GOOS=windows GOARCH= CC=x86_64-w64-mingw32-gcc-win32 go build ${LDFLAGS} -o dsql.exe
 
 run: 
 	go run ${LDFLAGS} main.go
 
 zip: build	
-	zip dsql-linux-$(shell arch).zip dsql
+	zip dsql-linux-$(shell arch)-${VERSION}.zip dsql
+
+zipcross: cross
+	zip dsql-win64-${VERSION}.zip dsql.exe
+
 
 test: 
 	go test -v ./...
