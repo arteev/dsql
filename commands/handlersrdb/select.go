@@ -198,7 +198,14 @@ func fillDatasetsByErrors(datasets *dataset.CollectionDataset, dbs []db.Database
 		if !localCtx.Get("success").(bool) {
 			ds := datasets.GetOrCreateDataset(d.Code)
 			ds.Error = true
-			ds.TextError = localCtx.Snap.Error().Error()
+			err := localCtx.Snap.Error()
+			if err != nil {
+				ds.TextError = err.Error()
+			} else {
+				ds.TextError = "WARN:Unknown error"
+				logger.Warn.Println("WARN: Unknown error (fillDatasetsByErrors)")
+
+			}
 		}
 	}
 	return nil
@@ -206,7 +213,7 @@ func fillDatasetsByErrors(datasets *dataset.CollectionDataset, dbs []db.Database
 
 func doOutputJSON(dbs []db.Database, ctx *action.Context) error {
 	datasets := ctx.Get("datasets").(*dataset.CollectionDataset)
-	indent := ctx.GetDef("indent","\t").(string)
+	indent := ctx.GetDef("indent", "\t").(string)
 	if err := fillDatasetsByErrors(datasets, dbs, ctx); err != nil {
 		return err
 	}
@@ -245,13 +252,13 @@ func doOutputRaw(dbs []db.Database, ctx *action.Context) error {
 
 func doOutputXML(dbs []db.Database, ctx *action.Context) error {
 	datasets := ctx.Get("datasets").(*dataset.CollectionDataset)
-	indent := ctx.GetDef("indent","    ").(string)
+	indent := ctx.GetDef("indent", "    ").(string)
 	if err := fillDatasetsByErrors(datasets, dbs, ctx); err != nil {
 		return err
 	}
 	subformat := ctx.GetDef("subformat", "").(string)
 	if subformat == "" {
-		datasets.WriteXML(os.Stdout,indent)
+		datasets.WriteXML(os.Stdout, indent)
 		return nil
 	}
 	f, err := os.Create(subformat)
@@ -259,7 +266,7 @@ func doOutputXML(dbs []db.Database, ctx *action.Context) error {
 		return err
 	}
 	defer f.Close()
-	_, err = datasets.WriteXML(f,indent)
+	_, err = datasets.WriteXML(f, indent)
 	return err
 }
 

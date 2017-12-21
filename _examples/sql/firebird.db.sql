@@ -16,7 +16,7 @@ CREATE TABLE Employee (
   NAME varchar(255) default NULL,
   EmpNo varchar(13) default NULL,
   Birth varchar(255),
-  Salary varchar(50) default NULL,
+  Salary integer default NULL,
   PRIMARY KEY (id)
 );
 
