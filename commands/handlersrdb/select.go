@@ -321,7 +321,12 @@ func Select(dbs1 db.Database, dsrc *sql.DB, cmd *sqlcommand.SQLCommand, ctx *act
 
 	var pint []interface{}
 
-	chanCancel := ctx.Get("iscancel").(chan bool)
+	localCtx := ctx.Get("context" + dbs1.Code).(*action.Context)
+	if localCtx == nil {
+		return fmt.Errorf("Could not get local context %s", dbs1.Code)
+	}
+
+	chanCancel := localCtx.Get("iscancel").(chan bool)
 	for _, p := range cmd.Params {
 		pint = append(pint, p)
 	}
@@ -356,7 +361,6 @@ func Select(dbs1 db.Database, dsrc *sql.DB, cmd *sqlcommand.SQLCommand, ctx *act
 
 	cols, _ := rw.Columns()
 
-	localCtx := ctx.Get("context" + dbs1.Code).(*action.Context)
 	chanHdr := ctx.Get("chanheader")
 	chandata := ctx.Get("chandata")
 	if chanHdr != nil {

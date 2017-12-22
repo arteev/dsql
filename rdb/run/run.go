@@ -88,7 +88,7 @@ func runItem(d db.Database, s *sqlcommand.SQLCommand, doaction action.Actioner, 
 			}()
 
 			ctx.Set("context"+d.Code, localCtx)
-			ctx.Set("iscancel", ch)
+			localCtx.Set("iscancel", ch)
 			localCtx.Snap.Start()
 			localCtx.Set("success", false)
 
