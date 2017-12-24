@@ -1,17 +1,20 @@
 package dataset
 
 import (
+	"bytes"
+	"encoding/json"
 	"encoding/xml"
+	"fmt"
 )
 
 type Row struct {
-	Num     int        `xml:"num,attr"`
-	DataRow []*DataRow `xml:"data>value"`
+	Num     int        `json:"num" xml:"num,attr"`
+	DataRow []*DataRow `json:"data" xml:"data>value"`
 }
 
 type DataRow struct {
-	Column string      `xml:"column,attr"`
-	Value  interface{} `xml:",chardata"`
+	Column string      `json:"-" xml:"column,attr"`
+	Value  interface{} `json:"-" xml:",chardata"`
 }
 
 func (r *Row) SetDataValues(data map[string]interface{}) {
@@ -41,4 +44,32 @@ func (d *DataRow) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	e.EncodeToken(xml.CharData(d.Value.(string)))
 	e.EncodeToken(xml.EndElement{Name: start.Name})
 	return nil
+
+}
+
+func (r *Row) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString("{")
+	fmt.Fprintf(buffer, "\"num\":%d,", r.Num)
+	buffer.WriteString("\"data\":{")
+	corr := false
+	for i, d := range r.DataRow {
+
+		if d.Column == "_CODE_" {
+			corr = true
+			continue
+		}
+		jsonVal, err := json.Marshal(d.Value)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Fprintf(buffer, "\"%s\":%s", d.Column, string(jsonVal))
+		if i < len(r.DataRow)-1 {
+			if (i < len(r.DataRow)-2) || (i == len(r.DataRow)-2 && corr) {
+				buffer.WriteString(",")
+			}
+		}
+
+	}
+	buffer.WriteString("}}")
+	return buffer.Bytes(), nil
 }

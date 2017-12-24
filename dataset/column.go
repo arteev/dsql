@@ -1,5 +1,5 @@
 package dataset
 
 type Column struct {
-	Name string
+	Name string `json:"-"`
 }

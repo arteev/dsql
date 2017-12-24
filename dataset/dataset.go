@@ -1,12 +1,19 @@
 package dataset
 
-//A Dataset for export to json,xml 
+import (
+	"bytes"
+	"fmt"
+)
+
+type Columns []*Column
+
+//A Dataset for export to json,xml
 type Dataset struct {
-	Error   bool
-	TextError string `json:",omitempty" xml:",omitempty"`
-	Name    string `xml:"name,attr"`
-	Columns []*Column `xml:"columns>column"`
-	Rows    []*Row `xml:"rows>row"`
+	Error     bool    `json:"error"`
+	TextError string  `json:",omitempty" xml:",omitempty"`
+	Name      string  `json:"name" xml:"name,attr"`
+	Columns   Columns `json:"columns" xml:"columns>column"`
+	Rows      []*Row  `json:"rows" xml:"rows>row"`
 }
 
 //NewDataSet returns new dataset by name
@@ -54,10 +61,10 @@ func (d Dataset) GetColumnsNames() (result []string) {
 }
 
 func (d Dataset) LastRow() *Row {
-    l := len(d.Rows);
-    if l==0 {
-        return nil
-    }
+	l := len(d.Rows)
+	if l == 0 {
+		return nil
+	}
 	return d.Rows[l-1]
 }
 
@@ -67,10 +74,10 @@ func (d *Dataset) Append(data map[string]interface{}) {
 	if last != nil {
 		i = last.Num + 1
 	}
-    r := &Row{
-		Num:  i,		
+	r := &Row{
+		Num: i,
 	}
-    r.SetDataValues(data)
+	r.SetDataValues(data)
 	d.Rows = append(d.Rows, r)
 }
 
@@ -79,3 +86,16 @@ func (d Dataset) RowsCount() int {
 	return len(d.Rows)
 }
 
+func (r Columns) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString("[")
+	for i, d := range r {
+		fmt.Fprintf(buffer, "\"%s\"", d.Name)
+		if i < len(r)-1 {
+
+			buffer.WriteString(",")
+		}
+
+	}
+	buffer.WriteString("]")
+	return buffer.Bytes(), nil
+}
