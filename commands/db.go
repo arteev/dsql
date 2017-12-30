@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/arteev/uriban"
+
 	"github.com/arteev/dsql/db"
 	"github.com/arteev/dsql/parameters"
 	"github.com/arteev/dsql/parameters/parametergetter"
@@ -73,7 +75,7 @@ func listDatabase() cli.Command {
 					rec["On"] = "+"
 				}
 				rec["Code"] = curd.Code
-				rec["URI"] = curd.ConnectionString
+				rec["URI"] = uriban.Replace(curd.ConnectionString, uriban.WithOption(uriban.Password, uriban.ModeStarred(4)))
 				rec["Engine"] = curd.Engine
 				rec["Tags"] = curd.TagsComma(";")
 				tab.AppendData(rec)
