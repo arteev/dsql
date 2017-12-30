@@ -81,9 +81,9 @@ func listDatabase() cli.Command {
 				tab.AppendData(rec)
 			}
 			pget := parametergetter.New(ctx, parameters.GetInstance())
-			if pget.GetDef(parametergetter.Fit, false).(bool) {
-				if e := termbox.Init(); e != nil {
-					panic(e)
+			if pget.GetDef(parametergetter.Fit, true).(bool) {
+				if err := termbox.Init(); err != nil {
+					return err
 				}
 				tw, _ := termbox.Size()
 				tab.AutoSize(true, tw)
