@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -10,8 +11,8 @@ import (
 	"github.com/arteev/dsql/rdb"
 	"github.com/arteev/fmttab"
 	"github.com/arteev/logger"
-	"github.com/urfave/cli"
 	"github.com/nsf/termbox-go"
+	"github.com/urfave/cli"
 )
 
 func stringFlag(name, usage string) cli.Flag {
@@ -34,8 +35,7 @@ func listDatabase() cli.Command {
 	return cli.Command{
 		Name:  "list",
 		Usage: "list of databases",
-		Flags: 
-		 append(dbFilterFlags.Flags(),
+		Flags: append(dbFilterFlags.Flags(),
 			cli.BoolFlag{
 				Name:  "fit",
 				Usage: "use for fit table by width window of terminal",
@@ -51,9 +51,11 @@ func listDatabase() cli.Command {
 			dbs, err := d.All()
 			if err != nil {
 				return err
-			}			
+			}
 			for _, e := range dbFilterFlags.Engines() {
-				rdb.CheckCodeEngine(e)
+				if err := rdb.CheckCodeEngine(e); err != nil {
+					return err
+				}
 			}
 			dbFilterFlags.ApplyTo(dbs)
 
@@ -95,7 +97,7 @@ func listDatabase() cli.Command {
 			case "Simple":
 				tab.SetBorder(fmttab.BorderSimple)
 			}
-			_, err = tab.WriteTo(os.Stdout)		
+			_, err = tab.WriteTo(os.Stdout)
 			return err
 		},
 	}
@@ -124,13 +126,13 @@ func tagDatabase() cli.Command {
 		Name:  "tag",
 		Usage: "add or remove tag for database",
 		Flags: flags,
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			logger.Trace.Println("command db tag")
 			defer logger.Trace.Println("command db tag done")
 
 			var add, remove = ctx.StringSlice("add"), ctx.StringSlice("remove")
 			if len(add) == 0 && len(remove) == 0 {
-				panic(fmt.Errorf("must be set: new tag or del tag"))
+				return fmt.Errorf("must be set: new tag or del tag")
 			}
 			dbFilterFlags.SetContext(ctx)
 
@@ -139,43 +141,47 @@ func tagDatabase() cli.Command {
 			d := db.GetInstance()
 			col, err := d.All()
 			if err != nil {
-				panic(err)
+				return err
 			}
 			for _, e := range dbFilterFlags.Engines() {
-				rdb.CheckCodeEngine(e)
+				if err := rdb.CheckCodeEngine(e); err != nil {
+					return err
+				}
 			}
 			dbFilterFlags.ApplyTo(col)
 
 			dbs := col.Get()
 			if len(dbs) == 0 {
-				panic("databases not found")
+				return errors.New("databases not found")
 			}
 
 			pget := parametergetter.New(ctx, parameters.GetInstance())
-			showstat := pget.GetDef(parametergetter.Statistic, false).(bool)            
+			showstat := pget.GetDef(parametergetter.Statistic, false).(bool)
 			var cntadd, cntremove int
 
 			for _, curdb := range dbs {
 				logger.Trace.Printf("process tag: %q\n", curdb.Code)
 
-				if cnt, err := d.AddTags(&curdb, add...); err != nil {
-					panic(err)
-				} else {
-                    cntadd += cnt
-					logger.Info.Printf("Added tags %d for %s\n", cnt,curdb.Code)                   
+				cnt, err := d.AddTags(&curdb, add...)
+				if err != nil {
+					return err
 				}
+				cntadd += cnt
+				logger.Info.Printf("Added tags %d for %s\n", cnt, curdb.Code)
 
-				if cnt, err := d.RemoveTags(&curdb, remove...); err != nil {
-					panic(err)
-				} else {
-                    cntremove += cnt
-					logger.Info.Printf("Removed tags %d for %s\n", cnt,curdb.Code)                    					
+				cnt, err = d.RemoveTags(&curdb, remove...)
+				if err != nil {
+					return err
 				}
+				cntremove += cnt
+				logger.Info.Printf("Removed tags %d for %s\n", cnt, curdb.Code)
+
 			}
-			if showstat {                
-				fmt.Printf("Added tags: %d\nRemoved tags: %d\n", cntadd,cntremove)
+			if showstat {
+				fmt.Printf("Added tags: %d\nRemoved tags: %d\n", cntadd, cntremove)
 			}
 
+			return nil
 		},
 	}
 }
@@ -188,16 +194,18 @@ func addDatabase() cli.Command {
 			stringFlag("uri", ""),
 			stringFlag("engine", ""),
 		},
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			logger.Trace.Println("command db add")
 			for _, flag := range ctx.FlagNames() {
 				if !ctx.IsSet(flag) {
-					panic(fmt.Errorf("option %q must be set", flag))
+					return fmt.Errorf("option %q must be set", flag)
 				}
 			}
 			d := db.GetInstance()
 			engine := ctx.String("engine")
-			rdb.CheckCodeEngine(engine)
+			if err := rdb.CheckCodeEngine(engine); err != nil {
+				return err
+			}
 			newdb := db.Database{
 				Code:             ctx.String("code"),
 				ConnectionString: ctx.String("uri"),
@@ -207,10 +215,10 @@ func addDatabase() cli.Command {
 			logger.Debug.Println("Adding ", newdb.Code, newdb.ConnectionString)
 			err := d.Add(newdb)
 			if err != nil {
-				panic(err)
+				return err
 			}
 			logger.Info.Println("Added ", newdb.Code)
-
+			return nil
 		},
 	}
 
@@ -230,10 +238,10 @@ func updateDatabase() cli.Command {
 				Usage: "enabled or disable database",
 			},
 		},
-		Action: func(ctx *cli.Context) {
+		Action: func(ctx *cli.Context) error {
 			logger.Trace.Println("command db update")
 			if !ctx.IsSet("code") {
-				panic(fmt.Errorf("option code must be set"))
+				return fmt.Errorf("option code must be set")
 			}
 			code := ctx.String("code")
 			logger.Debug.Printf("updating %s, new values(code:%s; uri:%s; enabled:%v; engine:%v)\n", code, ctx.String("code"), ctx.String("uri"), ctx.Bool("enabled"), ctx.String("engine"))
@@ -241,7 +249,7 @@ func updateDatabase() cli.Command {
 			dbFind, err := d.FindByCode(code)
 			logger.Debug.Println(dbFind)
 			if err != nil {
-				panic(err)
+				return err
 			}
 			if ctx.IsSet("newcode") {
 				dbFind.Code = ctx.String("newcode")
@@ -252,17 +260,18 @@ func updateDatabase() cli.Command {
 			if ctx.IsSet("enabled") {
 				dbFind.Enabled = ctx.Bool("enabled")
 			}
-
 			if ctx.IsSet("engine") {
 				dbFind.Engine = ctx.String("engine")
-				rdb.CheckCodeEngine(dbFind.Engine)
+				if err := rdb.CheckCodeEngine(dbFind.Engine); err != nil {
+					return err
+				}
 			}
 			if err := d.Update(dbFind); err != nil {
-				panic(err)
+				return err
 			}
 
 			logger.Info.Println("updated ", code)
-
+			return nil
 		},
 	}
 

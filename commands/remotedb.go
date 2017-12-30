@@ -30,7 +30,9 @@ func getDatabases(cflags *cliFlags, r db.RepositoryDB) ([]db.Database, error) {
 	dbs.AddFilterEnabled()
 	cflags.ApplyTo(dbs)
 	for _, e := range cflags.Engines() {
-		rdb.CheckCodeEngine(e)
+		if err := rdb.CheckCodeEngine(e); err != nil {
+			return nil, err
+		}
 	}
 	result := dbs.Get()
 	return result, nil
@@ -118,11 +120,11 @@ func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) err
 		ctxRun.Set("immediate", ctx.Bool("immediate"))
 	}
 	if ctx.IsSet("sepalias") {
-		ctxRun.Set("sepalias",ctx.String("sepalias"))
+		ctxRun.Set("sepalias", ctx.String("sepalias"))
 
 	}
 	if ctx.IsSet("indent") {
-		ctxRun.Set("indent",ctx.String("indent"))
+		ctxRun.Set("indent", ctx.String("indent"))
 	}
 	return nil
 }
@@ -163,7 +165,6 @@ func commonActionDBS(cflags *cliFlags, name string, a action.Actioner, sqlRequir
 		d := db.GetInstance()
 		defer checkErr(d.Close)
 		cflags.SetContext(ctx)
-		
 
 		paramGetter := createParametersGetter(ctx)
 
@@ -189,7 +190,6 @@ func commonActionDBS(cflags *cliFlags, name string, a action.Actioner, sqlRequir
 		if len(dbsSource) == 0 {
 			panic(fmt.Errorf("databases not found"))
 		}
-		
 
 		doTrigger(before, dbsSource, contextRun)
 		if _, e := run.Run(dbsSource, sc, a, contextRun, paramGetter); e != nil {
@@ -224,8 +224,8 @@ func flagsForQuery(fs ...cli.Flag) []cli.Flag {
 			Value: "raw",
 		},
 		cli.BoolFlag{
-			Name:"immediate",
-			Usage: "Whenever possible, output data directly (raw)",			
+			Name:  "immediate",
+			Usage: "Whenever possible, output data directly (raw)",
 		},
 		cli.IntFlag{
 			Name:  "timeout",
@@ -280,17 +280,17 @@ func GetCommandsDBS() []cli.Command {
 					Usage: "set type of border table: Thin,Double,Simple or None. Default:Thin",
 				},
 				cli.StringFlag{
-					Name: "sepalias",
-					Usage:"separator alias for output raw. default ': '",
+					Name:  "sepalias",
+					Usage: "separator alias for output raw. default ': '",
 				},
 				cli.StringFlag{
-					Name: "indent",
-					Usage:"indent output for format:xml,json. Default xml:4 spaces; json:\\t",
+					Name:  "indent",
+					Usage: "indent output for format:xml,json. Default xml:4 spaces; json:\\t",
 				}),
 			Action: commonActionDBS(dbFilterFlags, "select", handlersrdb.Select, true,
 				handlersrdb.SelectBefore,
-				muxActionTriggers(handlersrdb.SelectAfter,  handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic,handlersrdb.WriteRetryFile),
-				muxActionTriggers(handlersrdb.SelectError,  handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic,handlersrdb.WriteRetryFile)),
+				muxActionTriggers(handlersrdb.SelectAfter, handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic, handlersrdb.WriteRetryFile),
+				muxActionTriggers(handlersrdb.SelectError, handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic, handlersrdb.WriteRetryFile)),
 		},
 		cli.Command{
 			Name:  "exec",
@@ -303,8 +303,8 @@ func GetCommandsDBS() []cli.Command {
 			),
 			Action: commonActionDBS(dbFilterFlags, "exec", handlersrdb.Exec, true,
 				nil,
-				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic,handlersrdb.WriteRetryFile),
-				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic,handlersrdb.WriteRetryFile)),
+				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic, handlersrdb.WriteRetryFile),
+				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic, handlersrdb.WriteRetryFile)),
 		},
 	}
 }
