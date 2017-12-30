@@ -54,7 +54,7 @@ func search() {
 	}
 	//folder dsql
 	absPath, _ := filepath.Abs(path.Dir(os.Args[0]))
-	inAppLocation := path.Join(absPath, repositoryFile)
+	inAppLocation := filepath.Join(absPath, repositoryFile)
 	if _, err := os.Stat(inAppLocation); err == nil {
 		repositoryFile = inAppLocation
 		return
