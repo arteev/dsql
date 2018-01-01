@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
+	"strconv"
 
 	"strings"
 
@@ -23,6 +25,36 @@ import (
 
 //getDatabases return get enabled database with filter by name from args application
 func getDatabases(cflags *cliFlags, r db.RepositoryDB) ([]db.Database, error) {
+
+	uriList := make([]db.Database, 0)
+	for i, v := range cflags.DatabasesURI() {
+		engine := "firebirdsql"
+		uri := v
+		u, err := url.Parse(v)
+		if err == nil && u.Scheme != "" && rdb.CheckCodeEngine(u.Scheme) == nil {
+			engine = u.Scheme
+			if engine != "postgres" {
+				u.Scheme = ""
+				uri = strings.TrimLeft(u.String(), "/")
+			}
+		}
+
+		fmt.Printf("engine: %q, uri %q, %q", engine, v, uri)
+		d := db.Database{
+			ID:               -(i + 1),
+			Code:             "udb" + strconv.Itoa(i+1),
+			Enabled:          true,
+			ConnectionString: uri,
+			Engine:           engine,
+			Tags:             make([]*db.Tag, 0),
+		}
+		uriList = append(uriList, d)
+	}
+
+	if (len(uriList) != 0) && len(cflags.Databases()) == 0 {
+		return uriList, nil
+	}
+
 	dbs, err := r.All()
 	if err != nil {
 		return nil, err
@@ -35,6 +67,7 @@ func getDatabases(cflags *cliFlags, r db.RepositoryDB) ([]db.Database, error) {
 		}
 	}
 	result := dbs.Get()
+	result = append(result, uriList...)
 	return result, nil
 }
 

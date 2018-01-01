@@ -112,6 +112,16 @@ func (f *cliFlags) Databases() []string {
 		loadValueFromFile(f.getvalue(f.opt.ExcludeDatabases, "nd", "")))
 }
 
+func (f *cliFlags) DatabasesURI() []string {
+	dbs := make([]string, 0)
+	for _, v := range f.getvalue(f.opt.Databases, "databases", "d") {
+		if strings.HasPrefix(v, "uri:") {
+			dbs = append(dbs, v[4:])
+		}
+	}
+	return dbs
+}
+
 func loadValueFromFile(vals []string) []string {
 	res := make([]string, 0)
 	for _, v := range vals {
@@ -131,7 +141,9 @@ func loadValueFromFile(vals []string) []string {
 				}
 			}
 		}
-		res = append(res, v)
+		if !strings.HasPrefix(v, "uri:") {
+			res = append(res, v)
+		}
 	}
 	return res
 }
