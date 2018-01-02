@@ -1,11 +1,15 @@
 language: go
-sudo: required
+sudo: false
+os: linux
+dist: trusty
+
 go:
  - tip
 
+
 script:
-  - echo $TEST1
-  - go get 
-  - go test -v 
-  - go build
+  - make dep  
+  - make
+  - make zip
   
+
