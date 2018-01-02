@@ -26,7 +26,7 @@ func stringFlag(name, usage string) cli.Flag {
 
 func listDatabase() cli.Command {
 
-	dbFilterFlags := newCliFlags(optionFlag{
+	dbFilterFlags := newCliFlags(option{
 		Databases:        modeFlagMulti,
 		ExcludeDatabases: modeFlagMulti,
 		Engines:          modeFlagMulti,
@@ -106,7 +106,7 @@ func listDatabase() cli.Command {
 }
 
 func tagDatabase() cli.Command {
-	dbFilterFlags := newCliFlags(optionFlag{
+	dbFilterFlags := newCliFlags(option{
 		Databases:        modeFlagMulti,
 		ExcludeDatabases: modeFlagMulti,
 		Engines:          modeFlagMulti,

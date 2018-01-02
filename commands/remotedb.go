@@ -282,7 +282,7 @@ func init() {
 
 //GetCommandsDBS returns the command for register in cli app
 func getCommandsDBS() []cli.Command {
-	dbFilterFlags := newCliFlags(optionFlag{
+	dbFilterFlags := newCliFlags(option{
 		Databases:        modeFlagMulti,
 		ExcludeDatabases: modeFlagMulti,
 		Engines:          modeFlagMulti,
