@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
+	"strconv"
 
 	"strings"
 
@@ -22,7 +24,37 @@ import (
 )
 
 //getDatabases return get enabled database with filter by name from args application
-func getDatabases(cflags *cliFlags, r db.RepositoryDB) ([]db.Database, error) {
+func getDatabases(cflags *flags, r db.RepositoryDB) ([]db.Database, error) {
+
+	uriList := make([]db.Database, 0)
+	for i, v := range cflags.DatabasesURI() {
+		engine := "firebirdsql"
+		uri := v
+		u, err := url.Parse(v)
+		if err == nil && u.Scheme != "" && rdb.CheckCodeEngine(u.Scheme) == nil {
+			engine = u.Scheme
+			if engine != "postgres" {
+				u.Scheme = ""
+				uri = strings.TrimLeft(u.String(), "/")
+			}
+		}
+
+		fmt.Printf("engine: %q, uri %q, %q", engine, v, uri)
+		d := db.Database{
+			ID:               -(i + 1),
+			Code:             "udb" + strconv.Itoa(i+1),
+			Enabled:          true,
+			ConnectionString: uri,
+			Engine:           engine,
+			Tags:             make([]*db.Tag, 0),
+		}
+		uriList = append(uriList, d)
+	}
+
+	if (len(uriList) != 0) && len(cflags.Databases()) == 0 {
+		return uriList, nil
+	}
+
 	dbs, err := r.All()
 	if err != nil {
 		return nil, err
@@ -30,9 +62,12 @@ func getDatabases(cflags *cliFlags, r db.RepositoryDB) ([]db.Database, error) {
 	dbs.AddFilterEnabled()
 	cflags.ApplyTo(dbs)
 	for _, e := range cflags.Engines() {
-		rdb.CheckCodeEngine(e)
+		if err := rdb.CheckCodeEngine(e); err != nil {
+			return nil, err
+		}
 	}
 	result := dbs.Get()
+	result = append(result, uriList...)
 	return result, nil
 }
 
@@ -118,11 +153,11 @@ func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) err
 		ctxRun.Set("immediate", ctx.Bool("immediate"))
 	}
 	if ctx.IsSet("sepalias") {
-		ctxRun.Set("sepalias",ctx.String("sepalias"))
+		ctxRun.Set("sepalias", ctx.String("sepalias"))
 
 	}
 	if ctx.IsSet("indent") {
-		ctxRun.Set("indent",ctx.String("indent"))
+		ctxRun.Set("indent", ctx.String("indent"))
 	}
 	return nil
 }
@@ -156,14 +191,13 @@ func doTrigger(a actionTriggerDBS, dbs []db.Database, ctx *action.Context) {
 }
 
 //commonActionDBS. Returns action for cli app bind with handler for current db item
-func commonActionDBS(cflags *cliFlags, name string, a action.Actioner, sqlRequired bool, before, after, errtrg actionTriggerDBS) func(ctx *cli.Context) {
+func commonActionDBS(cflags *flags, name string, a action.Actioner, sqlRequired bool, before, after, errtrg actionTriggerDBS) func(ctx *cli.Context) {
 	return func(ctx *cli.Context) {
 		logger.Trace.Println("command", name)
 		defer logger.Trace.Println("command", name, "done")
 		d := db.GetInstance()
 		defer checkErr(d.Close)
 		cflags.SetContext(ctx)
-		
 
 		paramGetter := createParametersGetter(ctx)
 
@@ -189,7 +223,6 @@ func commonActionDBS(cflags *cliFlags, name string, a action.Actioner, sqlRequir
 		if len(dbsSource) == 0 {
 			panic(fmt.Errorf("databases not found"))
 		}
-		
 
 		doTrigger(before, dbsSource, contextRun)
 		if _, e := run.Run(dbsSource, sc, a, contextRun, paramGetter); e != nil {
@@ -224,8 +257,8 @@ func flagsForQuery(fs ...cli.Flag) []cli.Flag {
 			Value: "raw",
 		},
 		cli.BoolFlag{
-			Name:"immediate",
-			Usage: "Whenever possible, output data directly (raw)",			
+			Name:  "immediate",
+			Usage: "Whenever possible, output data directly (raw)",
 		},
 		cli.IntFlag{
 			Name:  "timeout",
@@ -243,9 +276,13 @@ func combineFlags(flags ...cli.Flag) []cli.Flag {
 	return result
 }
 
+func init() {
+	Register(getCommandsDBS())
+}
+
 //GetCommandsDBS returns the command for register in cli app
-func GetCommandsDBS() []cli.Command {
-	dbFilterFlags := newCliFlags(cliOption{
+func getCommandsDBS() []cli.Command {
+	dbFilterFlags := newCliFlags(option{
 		Databases:        modeFlagMulti,
 		ExcludeDatabases: modeFlagMulti,
 		Engines:          modeFlagMulti,
@@ -280,17 +317,17 @@ func GetCommandsDBS() []cli.Command {
 					Usage: "set type of border table: Thin,Double,Simple or None. Default:Thin",
 				},
 				cli.StringFlag{
-					Name: "sepalias",
-					Usage:"separator alias for output raw. default ': '",
+					Name:  "sepalias",
+					Usage: "separator alias for output raw. default ': '",
 				},
 				cli.StringFlag{
-					Name: "indent",
-					Usage:"indent output for format:xml,json. Default xml:4 spaces; json:\\t",
+					Name:  "indent",
+					Usage: "indent output for format:xml,json. Default xml:4 spaces; json:\\t",
 				}),
 			Action: commonActionDBS(dbFilterFlags, "select", handlersrdb.Select, true,
 				handlersrdb.SelectBefore,
-				muxActionTriggers(handlersrdb.SelectAfter,  handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic,handlersrdb.WriteRetryFile),
-				muxActionTriggers(handlersrdb.SelectError,  handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic,handlersrdb.WriteRetryFile)),
+				muxActionTriggers(handlersrdb.SelectAfter, handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic, handlersrdb.WriteRetryFile),
+				muxActionTriggers(handlersrdb.SelectError, handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic, handlersrdb.WriteRetryFile)),
 		},
 		cli.Command{
 			Name:  "exec",
@@ -303,8 +340,8 @@ func GetCommandsDBS() []cli.Command {
 			),
 			Action: commonActionDBS(dbFilterFlags, "exec", handlersrdb.Exec, true,
 				nil,
-				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic,handlersrdb.WriteRetryFile),
-				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic,handlersrdb.WriteRetryFile)),
+				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic, handlersrdb.WriteRetryFile),
+				muxActionTriggers(handlersrdb.PrintStatisticQuery, handlersrdb.PrintStatistic, handlersrdb.WriteRetryFile)),
 		},
 	}
 }

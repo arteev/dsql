@@ -1,4 +1,4 @@
-VERSION="1.6.27"
+VERSION="1.6.30"
 BUILD_TIME=`date -u '+%Y-%m-%d_%I:%M:%S%p'`
 GITHEAD=`git rev-parse HEAD`
 LDFLAGS=-ldflags "-X github.com/arteev/dsql/app.Version=${VERSION} -X github.com/arteev/dsql/app.DateBuild=${BUILD_TIME}  -X github.com/arteev/dsql/app.GitHash=${GITHEAD}" 

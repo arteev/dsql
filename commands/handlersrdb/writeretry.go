@@ -3,7 +3,7 @@ package handlersrdb
 import (
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/arteev/dsql/db"
 	"github.com/arteev/dsql/rdb/action"
@@ -17,9 +17,9 @@ func WriteRetryFile(dbs []db.Database, ctx *action.Context) error {
 	if retryName == "" {
 		dir, err := os.Getwd()
 		if err != nil {
-			retryName = path.Join(".", defaultRetry)
+			retryName = filepath.Join(".", defaultRetry)
 		} else {
-			retryName = path.Join(dir, defaultRetry)
+			retryName = filepath.Join(dir, defaultRetry)
 		}
 		ctx.Set("retryname", retryName)
 	}
@@ -48,7 +48,7 @@ func WriteRetryFile(dbs []db.Database, ctx *action.Context) error {
 			fretry.WriteString(d.Code + "\n")
 		}
 	}
-	if fretry != nil {
+	if !ctx.GetDef("silent", false).(bool) && fretry != nil {
 		fmt.Printf("There were mistakes. Use to repeat -d @%s\n", retryName)
 	}
 	return nil

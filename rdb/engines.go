@@ -10,11 +10,8 @@ import (
 )
 
 //KnownEngine - Codes of supported database engines
-var KnownEngine = map[string]interface{}{
-	"firebirdsql": nil,
-	"sqlite3":     nil,
-	"postgres":    nil,
-}
+var KnownEngine = []string{
+	"firebirdsql", "sqlite3", "postgres"}
 
 //Errors
 var (
@@ -22,14 +19,19 @@ var (
 )
 
 //CheckCodeEngine - check supported database engine
-func CheckCodeEngine(engine string) {
-	if _, ok := KnownEngine[engine]; !ok {
-		panic(ErrUnknowEngine)
+func CheckCodeEngine(engine string) error {
+	for _, e := range KnownEngine {
+		if e == engine {
+			return nil
+		}
 	}
+	return ErrUnknowEngine
 }
 
 //Open - returns *sql.DB with check of value engine
 func Open(name, connectionString string) (*sql.DB, error) {
-	CheckCodeEngine(name)	
+	if err := CheckCodeEngine(name); err != nil {
+		return nil, err
+	}
 	return sql.Open(name, connectionString)
 }
