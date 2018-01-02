@@ -10,6 +10,9 @@ lint:
 	go vet 
 	gometalinter --deadline=15s ./...
 
+dep:
+	go get -v
+
 build: 
 	go build ${LDFLAGS} -o dsql 	
 
