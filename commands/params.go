@@ -9,8 +9,8 @@ import (
 	"github.com/arteev/dsql/parameters/parametergetter"
 	"github.com/arteev/fmttab"
 	"github.com/arteev/logger"
-	"github.com/urfave/cli"
 	"github.com/nsf/termbox-go"
+	"github.com/urfave/cli"
 )
 
 //Errors
@@ -218,18 +218,18 @@ func setParam() cli.Command {
 	}
 }
 
-//GetCommandsParams define cli command parameters
-func GetCommandsParams() []cli.Command {
-	return []cli.Command{
-		cli.Command{
-			Name:  "param",
-			Usage: "list or managment of the parameters",
-			Subcommands: []cli.Command{
-				listParams(),
-				setParam(),
-				getParam(),
-				deleteParam(),
+func init() {
+	Register(
+		[]cli.Command{
+			cli.Command{
+				Name:  "param",
+				Usage: "list or managment of the parameters",
+				Subcommands: []cli.Command{
+					listParams(),
+					setParam(),
+					getParam(),
+					deleteParam(),
+				},
 			},
-		},
-	}
+		})
 }

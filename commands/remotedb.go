@@ -24,7 +24,7 @@ import (
 )
 
 //getDatabases return get enabled database with filter by name from args application
-func getDatabases(cflags *cliFlags, r db.RepositoryDB) ([]db.Database, error) {
+func getDatabases(cflags *flags, r db.RepositoryDB) ([]db.Database, error) {
 
 	uriList := make([]db.Database, 0)
 	for i, v := range cflags.DatabasesURI() {
@@ -191,7 +191,7 @@ func doTrigger(a actionTriggerDBS, dbs []db.Database, ctx *action.Context) {
 }
 
 //commonActionDBS. Returns action for cli app bind with handler for current db item
-func commonActionDBS(cflags *cliFlags, name string, a action.Actioner, sqlRequired bool, before, after, errtrg actionTriggerDBS) func(ctx *cli.Context) {
+func commonActionDBS(cflags *flags, name string, a action.Actioner, sqlRequired bool, before, after, errtrg actionTriggerDBS) func(ctx *cli.Context) {
 	return func(ctx *cli.Context) {
 		logger.Trace.Println("command", name)
 		defer logger.Trace.Println("command", name, "done")
@@ -276,9 +276,13 @@ func combineFlags(flags ...cli.Flag) []cli.Flag {
 	return result
 }
 
+func init() {
+	Register(getCommandsDBS())
+}
+
 //GetCommandsDBS returns the command for register in cli app
-func GetCommandsDBS() []cli.Command {
-	dbFilterFlags := newCliFlags(cliOption{
+func getCommandsDBS() []cli.Command {
+	dbFilterFlags := newCliFlags(optionFlag{
 		Databases:        modeFlagMulti,
 		ExcludeDatabases: modeFlagMulti,
 		Engines:          modeFlagMulti,

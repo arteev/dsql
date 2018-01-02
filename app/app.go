@@ -23,9 +23,10 @@ func newApp() *Application {
 	a := &Application{
 		cli: newcli(),
 	}
+	a.cli.Commands = commands.Get()
+
 	return a.globalFlags().
 		beforeAction().
-		defineCommands().
 		defaultAction()
 }
 
@@ -62,20 +63,6 @@ func (a *Application) globalFlags() *Application {
 			Name:  "silent",
 			Usage: "Hide runtime error",
 		},
-	}
-	return a
-}
-
-func (a *Application) defineCommands() *Application {
-	arr := [][]cli.Command{
-		commands.GetCommandsListDB(),
-		commands.GetCommandsParams(),
-		commands.GetCommandsDBS(),
-		commands.GetCommandsMisc(),
-	}
-	a.cli.Commands = []cli.Command{}
-	for _, item := range arr {
-		a.cli.Commands = append(a.cli.Commands, item...)
 	}
 	return a
 }

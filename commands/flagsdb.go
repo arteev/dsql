@@ -9,30 +9,30 @@ import (
 	"github.com/urfave/cli"
 )
 
-type cliFlagMode byte
+type flagMode byte
 
 const (
-	modeFlagUnUsed = cliFlagMode(0)
-	modeFlagSingle = cliFlagMode(1)
-	modeFlagMulti  = cliFlagMode(2)
+	modeFlagUnUsed = flagMode(iota)
+	modeFlagSingle
+	modeFlagMulti
 )
 
-type cliOption struct {
-	Databases        cliFlagMode
-	ExcludeDatabases cliFlagMode
-	Engines          cliFlagMode
-	Tags             cliFlagMode
-	ExcludeTags      cliFlagMode
+type option struct {
+	Databases        flagMode
+	ExcludeDatabases flagMode
+	Engines          flagMode
+	Tags             flagMode
+	ExcludeTags      flagMode
 }
 
-type cliFlags struct {
-	opt   cliOption
+type flags struct {
+	opt   option
 	ctx   *cli.Context
 	flags []cli.Flag
 }
 
-func newCliFlags(opt cliOption) *cliFlags {
-	result := &cliFlags{
+func newCliFlags(opt option) *flags {
+	result := &flags{
 		opt: opt,
 	}
 	result.flags = result.genFlags()
@@ -40,12 +40,11 @@ func newCliFlags(opt cliOption) *cliFlags {
 }
 
 //SetContext use before get Database,Engines,Tags
-func (f *cliFlags) SetContext(ctx *cli.Context) {
-
+func (f *flags) SetContext(ctx *cli.Context) {
 	f.ctx = ctx
 }
 
-func getFlagByMode(mode cliFlagMode, Name, Usage string) cli.Flag {
+func getFlagByMode(mode flagMode, Name, Usage string) cli.Flag {
 	switch mode {
 	case modeFlagUnUsed:
 		return nil
@@ -63,7 +62,7 @@ func getFlagByMode(mode cliFlagMode, Name, Usage string) cli.Flag {
 	return nil
 }
 
-func (f *cliFlags) genFlags() (flags []cli.Flag) {
+func (f *flags) genFlags() (flags []cli.Flag) {
 	df := getFlagByMode(f.opt.Databases, "databases,d", "use for the concrete database(s). Use load from file -d @filename. Connection string -d uri:engine://connectonstring")
 	if df != nil {
 		flags = append(flags, df)
@@ -90,11 +89,11 @@ func (f *cliFlags) genFlags() (flags []cli.Flag) {
 }
 
 //Flags returns flags for cli.app
-func (f *cliFlags) Flags() []cli.Flag {
+func (f *flags) Flags() []cli.Flag {
 	return f.flags
 }
 
-func (f cliFlags) checkContext() {
+func (f flags) checkContext() {
 	if f.ctx == nil {
 		panic("CliFlags: cli.context is nil")
 	}
@@ -102,7 +101,7 @@ func (f cliFlags) checkContext() {
 }
 
 //Databases returns list of databases from cli flags
-func (f *cliFlags) Databases() []string {
+func (f *flags) Databases() []string {
 	if f.opt.Databases == modeFlagUnUsed {
 		return nil
 	}
@@ -112,7 +111,7 @@ func (f *cliFlags) Databases() []string {
 		loadValueFromFile(f.getvalue(f.opt.ExcludeDatabases, "nd", "")))
 }
 
-func (f *cliFlags) DatabasesURI() []string {
+func (f *flags) DatabasesURI() []string {
 	dbs := make([]string, 0)
 	for _, v := range f.getvalue(f.opt.Databases, "databases", "d") {
 		if strings.HasPrefix(v, "uri:") {
@@ -149,7 +148,7 @@ func loadValueFromFile(vals []string) []string {
 }
 
 //ExDatabases returns excluded list of databases from cli flags
-func (f *cliFlags) ExDatabases() []string {
+func (f *flags) ExDatabases() []string {
 	if f.opt.ExcludeDatabases == modeFlagUnUsed {
 		return nil
 	}
@@ -157,7 +156,7 @@ func (f *cliFlags) ExDatabases() []string {
 }
 
 //Engines returns list of engines from cli flags
-func (f *cliFlags) Engines() []string {
+func (f *flags) Engines() []string {
 	if f.opt.Engines == modeFlagUnUsed {
 		return nil
 	}
@@ -165,7 +164,7 @@ func (f *cliFlags) Engines() []string {
 }
 
 //Tags returns list of tags from cli flags
-func (f *cliFlags) Tags() []string {
+func (f *flags) Tags() []string {
 	if f.opt.Tags == modeFlagUnUsed {
 		return nil
 	}
@@ -175,14 +174,14 @@ func (f *cliFlags) Tags() []string {
 }
 
 //ExTags returns excluded list of tags from cli flags
-func (f *cliFlags) ExTags() []string {
+func (f *flags) ExTags() []string {
 	if f.opt.ExcludeTags == modeFlagUnUsed {
 		return nil
 	}
 	return f.getvalue(f.opt.Engines, "nt", "")
 }
 
-func (f *cliFlags) getvalue(mode cliFlagMode, ltr1, ltr2 string) (res []string) {
+func (f *flags) getvalue(mode flagMode, ltr1, ltr2 string) (res []string) {
 	f.checkContext()
 	switch mode {
 	case modeFlagUnUsed:
@@ -207,7 +206,7 @@ func (f *cliFlags) getvalue(mode cliFlagMode, ltr1, ltr2 string) (res []string) 
 	return
 }
 
-func (f *cliFlags) exclude(value []string, exvalue []string) (result []string) {
+func (f *flags) exclude(value []string, exvalue []string) (result []string) {
 	exists := func(chkval string) bool {
 		for _, s := range exvalue {
 			if s == chkval {
@@ -224,7 +223,7 @@ func (f *cliFlags) exclude(value []string, exvalue []string) (result []string) {
 	return
 }
 
-func (f *cliFlags) ApplyTo(dbs db.CollectionRepositoryDB) {
+func (f *flags) ApplyTo(dbs db.CollectionRepositoryDB) {
 	dbs.AddFilterIncludeDB(f.Databases()...).
 		AddFilterExcludeDB(f.ExDatabases()...).
 		AddFilterIncludeEngine(f.Engines()...).

@@ -8,9 +8,8 @@ import (
 	"github.com/urfave/cli"
 )
 
-//GetCommandsMisc define cli command: env
-func GetCommandsMisc() []cli.Command {
-	return []cli.Command{
+func init() {
+	Register([]cli.Command{
 		cli.Command{
 			Name:  "env",
 			Usage: "print dsql environment(variables,options) information",
@@ -19,5 +18,5 @@ func GetCommandsMisc() []cli.Command {
 				fmt.Println("ENGINES:", rdb.KnownEngine)
 			},
 		},
-	}
+	})
 }

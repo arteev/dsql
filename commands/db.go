@@ -26,7 +26,7 @@ func stringFlag(name, usage string) cli.Flag {
 
 func listDatabase() cli.Command {
 
-	dbFilterFlags := newCliFlags(cliOption{
+	dbFilterFlags := newCliFlags(optionFlag{
 		Databases:        modeFlagMulti,
 		ExcludeDatabases: modeFlagMulti,
 		Engines:          modeFlagMulti,
@@ -106,7 +106,7 @@ func listDatabase() cli.Command {
 }
 
 func tagDatabase() cli.Command {
-	dbFilterFlags := newCliFlags(cliOption{
+	dbFilterFlags := newCliFlags(optionFlag{
 		Databases:        modeFlagMulti,
 		ExcludeDatabases: modeFlagMulti,
 		Engines:          modeFlagMulti,
@@ -306,19 +306,19 @@ func deleteDatabase() cli.Command {
 	}
 }
 
-//GetCommandsListDB define cli command for DB
-func GetCommandsListDB() []cli.Command {
-	return []cli.Command{
-		cli.Command{
-			Name:  "db",
-			Usage: "list or managment of the list remote databases",
-			Subcommands: []cli.Command{
-				listDatabase(),
-				addDatabase(),
-				updateDatabase(),
-				deleteDatabase(),
-				tagDatabase(),
+func init() {
+	Register(
+		[]cli.Command{
+			cli.Command{
+				Name:  "db",
+				Usage: "list or managment of the list remote databases",
+				Subcommands: []cli.Command{
+					listDatabase(),
+					addDatabase(),
+					updateDatabase(),
+					deleteDatabase(),
+					tagDatabase(),
+				},
 			},
-		},
-	}
+		})
 }
