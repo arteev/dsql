@@ -64,7 +64,7 @@ func getFlagByMode(mode cliFlagMode, Name, Usage string) cli.Flag {
 }
 
 func (f *cliFlags) genFlags() (flags []cli.Flag) {
-	df := getFlagByMode(f.opt.Databases, "databases,d", "use for the concrete database(s). Use load from file -d @filename")
+	df := getFlagByMode(f.opt.Databases, "databases,d", "use for the concrete database(s). Use load from file -d @filename. Connection string -d uri:engine://connectonstring")
 	if df != nil {
 		flags = append(flags, df)
 	}

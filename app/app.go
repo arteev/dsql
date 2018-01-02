@@ -71,7 +71,7 @@ func (a *Application) defineCommands() *Application {
 		commands.GetCommandsListDB(),
 		commands.GetCommandsParams(),
 		commands.GetCommandsDBS(),
-		commands.GetCommandsConfig(),
+		commands.GetCommandsMisc(),
 	}
 	a.cli.Commands = []cli.Command{}
 	for _, item := range arr {
