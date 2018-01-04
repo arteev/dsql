@@ -152,5 +152,3 @@ func TestGroupsValues(t *testing.T) {
 	}
 
 }
-
-//todo: test get key not exists

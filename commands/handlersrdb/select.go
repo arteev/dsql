@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/arteev/dsql/db"
+	"github.com/arteev/dsql/format"
 	"github.com/arteev/dsql/rdb/action"
 	"github.com/arteev/dsql/rdb/sqlcommand"
 	"github.com/arteev/logger"
@@ -47,7 +48,8 @@ func foundInSlice(strs columns.Columns, value string) bool {
 }
 
 //formatRaw returns formatted string for output as Raw
-func formatRaw(ctx *action.Context, mask string, row, line int, columns []string, data map[string]interface{}) (string, error) {
+func formatRaw(ctx *action.Context, f *format.Format, row, line int, columns []string, data map[string]interface{}) (string, error) {
+	mask := f.RawString()
 	if mask == "" {
 		mask = "{COLUMN}:\"{VALUE}\";"
 	}
@@ -75,8 +77,8 @@ func SelectBefore(dbs []db.Database, ctx *action.Context) error {
 	// Prepare data in ctx.datasets
 	logger.Trace.Println("SelectBefore")
 	immediate := ctx.GetDef("immediate", false).(bool)
-	format := ctx.Get("format")
-	subformat := ctx.GetDef("subformat", "").(string)
+	fm := ctx.Get("format").(*format.Format)
+	//logger.Trace.Printf("%#v\n", fm)
 
 	datasets := dataset.NewColllection()
 	chanHdr := make(chanHeader)
@@ -99,8 +101,8 @@ func SelectBefore(dbs []db.Database, ctx *action.Context) error {
 				line++
 				ds := datasets.GetOrCreateDataset(cudata.Code)
 				ds.Append(cudata.Data)
-				if format == "raw" && immediate {
-					data, err := formatRaw(ctx, subformat, ds.RowsCount(), line, ds.GetColumnsNames(), cudata.Data)
+				if fm.Name() == "raw" && immediate {
+					data, err := formatRaw(ctx, fm, ds.RowsCount(), line, ds.GetColumnsNames(), cudata.Data)
 					if err != nil {
 						logger.Error.Println(err)
 					} else {
@@ -217,12 +219,14 @@ func doOutputJSON(dbs []db.Database, ctx *action.Context) error {
 	if err := fillDatasetsByErrors(datasets, dbs, ctx); err != nil {
 		return err
 	}
-	subformat := ctx.GetDef("subformat", "").(string)
-	if subformat == "" {
+
+	fm := ctx.Get("format").(*format.Format)
+	filename, ok := fm.Root().Get("file")
+	if !ok {
 		_, err := datasets.WriteJSON(os.Stdout, indent)
 		return err
 	}
-	f, err := os.Create(subformat)
+	f, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
@@ -233,13 +237,13 @@ func doOutputJSON(dbs []db.Database, ctx *action.Context) error {
 
 func doOutputRaw(dbs []db.Database, ctx *action.Context) error {
 	datasets := ctx.Get("datasets").(*dataset.CollectionDataset)
-	subformat := ctx.GetDef("subformat", "").(string)
 
+	fm := ctx.Get("format").(*format.Format)
 	line := 0
 	for _, ds := range datasets.GetDatasets() {
 		for _, row := range ds.Rows {
 			line++
-			data, err := formatRaw(ctx, subformat, ds.RowsCount(), line, ds.GetColumnsNames(), row.GetDataMap())
+			data, err := formatRaw(ctx, fm, ds.RowsCount(), line, ds.GetColumnsNames(), row.GetDataMap())
 			if err != nil {
 				return err
 			}
@@ -256,12 +260,13 @@ func doOutputXML(dbs []db.Database, ctx *action.Context) error {
 	if err := fillDatasetsByErrors(datasets, dbs, ctx); err != nil {
 		return err
 	}
-	subformat := ctx.GetDef("subformat", "").(string)
-	if subformat == "" {
+	fm := ctx.Get("format").(*format.Format)
+	filename, ok := fm.Root().Get("file")
+	if !ok {
 		datasets.WriteXML(os.Stdout, indent)
 		return nil
 	}
-	f, err := os.Create(subformat)
+	f, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
@@ -278,7 +283,8 @@ func SelectAfter(dbs []db.Database, ctx *action.Context) error {
 	if done != nil {
 		done.(chan bool) <- true
 	}
-	switch ctx.Get("format") {
+	fm := ctx.Get("format").(*format.Format)
+	switch fm.Name() {
 	case "table":
 		return doOutputTable(dbs, ctx)
 	case "json":
@@ -300,7 +306,8 @@ func SelectError(dbs []db.Database, ctx *action.Context) error {
 	if !ctx.GetDef("silent", false).(bool) {
 		fmt.Println("All requests will fail.")
 	}
-	switch ctx.Get("format") {
+	fm := ctx.Get("format").(*format.Format)
+	switch fm.Name() {
 	case "json", "xml":
 		return SelectAfter(dbs, ctx)
 	}

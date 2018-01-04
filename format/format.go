@@ -6,6 +6,7 @@ import (
 	"sync"
 )
 
+//Errors
 var (
 	ErrEmpty = errors.New("Empty format name")
 )
@@ -21,6 +22,7 @@ type Format struct {
 	sync.RWMutex
 	name   string
 	groups map[string]*Group
+	raw    string
 }
 
 //Group - group of values
@@ -44,9 +46,18 @@ func New(s string) (*Format, error) {
 		name:   parts[0],
 		groups: make(map[string]*Group),
 	}
-	f.parse(sgroups)
+
+	err := f.parse(sgroups)
+	if err != nil {
+		return nil, err
+	}
+	f.raw = sgroups
 
 	return f, nil
+}
+
+func (f *Format) RawString() string {
+	return f.raw
 }
 
 //Name returns the name of the format

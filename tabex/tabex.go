@@ -115,7 +115,8 @@ func setColumn(tab *fmttab.Table, params []string) {
 
 //SetTableSubFormat set table options from subformat
 func SetTableSubFormat(tab *fmttab.Table, subformat string) {
-	// refactor this
+	// TODO: refactor this
+	//TODO: fix it
 	if subformat != "" {
 		//column:name=string,width=auto|N,align=left|right,visible=y|n,caption=string;
 		groups := strings.Split(subformat, sepGroups)

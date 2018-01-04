@@ -12,6 +12,7 @@ import (
 
 	"github.com/arteev/dsql/commands/handlersrdb"
 	"github.com/arteev/dsql/db"
+	"github.com/arteev/dsql/format"
 	"github.com/arteev/dsql/parameters"
 	"github.com/arteev/dsql/parameters/parametergetter"
 	"github.com/arteev/dsql/parameters/paramsreplace"
@@ -111,36 +112,23 @@ func parseSQLFromArgs(ctx *cli.Context) *sqlcommand.SQLCommand {
 
 func parseOthersFlagsForRunContext(ctx *cli.Context, ctxRun *action.Context) error {
 	if ctx.IsSet("format") {
-		format := ctx.String("format")
-		subformat := ""
-		//TODO: refactor it!
-		if strings.Contains(format, "raw:") {
-			subformat = format[len("raw:"):]
-			format = "raw"
+		f, err := format.New(ctx.String("format"))
+		if err != nil {
+			return err
 		}
-		if strings.Contains(format, "table:") {
-			subformat = format[len("table:"):]
-			format = "table"
-		}
-		if strings.Contains(format, "json:") {
-			subformat = format[len("json:"):]
-			format = "json"
-		}
-		if strings.Contains(format, "xml:") {
-			subformat = format[len("xml:"):]
-			format = "xml"
-		}
-
-		switch format {
+		switch f.Name() {
 		case "table", "raw", "json", "xml":
-			ctxRun.Set("format", format)
-			ctxRun.Set("subformat", subformat)
+			ctxRun.Set("format", f)
 			break
 		default:
-			return fmt.Errorf("Unknown format:%s", format)
+			return fmt.Errorf("Unknown format:%s", f.Name())
 		}
 	} else {
-		ctxRun.Set("format", "raw")
+		f, err := format.New("raw")
+		if err != nil {
+			return err
+		}
+		ctxRun.Set("format", f)
 	}
 
 	if ctx.IsSet("timeout") {
