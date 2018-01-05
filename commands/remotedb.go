@@ -240,8 +240,25 @@ func flagsForQuery(fs ...cli.Flag) []cli.Flag {
 			Usage: "set params for query",
 		},
 		cli.StringFlag{
-			Name:  "format",
-			Usage: "Format output: raw[:subformat] (default) | table|xml|json.  Subformat - use templates: {ALIAS}{COLNUM}{ROW}{LINE}{COLUMN}{VALUE}  ",
+			Name: "format",
+			Usage: `Format output. Syntax: value[:options]
+	value: raw(default) | table | xml | json. 
+	Options: 
+		when raw:
+			Use template for each line: {ALIAS}{COLNUM}{ROW}{LINE}{COLUMN}{VALUE} 				
+		when table: 
+			header=true|y|false|n,border=thin|double|simple|none|false|n;
+			columnN:name=string,width=auto|N,align=left|right,visible=y|n,caption=string;
+				where N(1,...)
+			
+			sample: 
+				--format=table:border=simple;column1:name=ID,visible=n;column2:name=FIELD1,caption=SAMPLE
+		when xml:
+			file=output_file
+		when json:
+			file=output_file
+
+`,
 			Value: "raw",
 		},
 		cli.BoolFlag{

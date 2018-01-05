@@ -47,15 +47,13 @@ func New(s string) (*Format, error) {
 		groups: make(map[string]*Group),
 	}
 
-	err := f.parse(sgroups)
-	if err != nil {
-		return nil, err
-	}
+	f.parse(sgroups)
 	f.raw = sgroups
 
 	return f, nil
 }
 
+//RawString returns part of the line after the name of the format
 func (f *Format) RawString() string {
 	return f.raw
 }
@@ -72,12 +70,12 @@ func (f *Format) Count() int {
 	return len(f.groups)
 }
 
-func (f *Format) parse(s string) error {
+func (f *Format) parse(s string) {
 	f.groups[groot] = &Group{name: groot, vals: make(map[string]string)}
 
 	s = strings.TrimSpace(s)
 	if len(s) == 0 {
-		return nil
+		return
 	}
 
 	parts := strings.Split(s, sepGroup)
@@ -119,7 +117,7 @@ func (f *Format) parse(s string) error {
 		f.groups[gname] = item
 	}
 
-	return nil
+	return
 }
 
 //Root Returns root group

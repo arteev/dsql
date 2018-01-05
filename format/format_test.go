@@ -94,6 +94,25 @@ func TestRootValues(t *testing.T) {
 	}
 }
 
+func TestRaw(t *testing.T) {
+	grs := "group1:;group2"
+	f, err := New("test:" + grs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := f.RawString(); got != grs {
+		t.Errorf("Expected raw %q,got %q", grs, got)
+	}
+
+	f, err = New("test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := f.RawString(); got != "" {
+		t.Errorf("Expected raw %q,got %q", "", got)
+	}
+}
+
 func TestExistValues(t *testing.T) {
 	f, err := New("test:key=val;group1:key2=val2")
 	if err != nil {

@@ -169,10 +169,11 @@ func doOutputTable(dbs []db.Database, ctx *action.Context) error {
 		table.SetBorder(fmttab.BorderSimple)
 	}
 
-	tabex.SetTableSubFormat(table, ctx.GetDef("subformat", "").(string))
+	if err := tabex.SetTableSubFormat(ctx, table); err != nil {
+		return err
+	}
 
 	if pget.GetDef(parametergetter.Fit, true).(bool) {
-
 		if e := termbox.Init(); e != nil {
 			return e
 		}
