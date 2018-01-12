@@ -24,6 +24,15 @@ var (
 	tmpFile        string
 )
 
+//DSQL environment variables
+const (
+	ENDSQLREPO = "DSQL_REPO"
+)
+
+var (
+	EnvDSQLRepo string
+)
+
 func Init() {
 	search()
 }
@@ -34,10 +43,20 @@ func Done() {
 	}
 }
 
-func search() {
+func search() error {
+	//env
+	if env, ok := os.LookupEnv(ENDSQLREPO); ok {
+		env := os.ExpandEnv(env)
+		if err := SetRepositoryFile(env); err != nil {
+			return err
+		}
+		EnvDSQLRepo = env
+		return nil
+	}
+
 	//workdir
 	if _, err := os.Stat(repositoryFile); err == nil {
-		return
+		return nil
 	}
 	var cfgLocation string
 	//appdata | ~/.config
@@ -49,7 +68,7 @@ func search() {
 		}
 		if _, err := os.Stat(cfgLocation); err == nil {
 			repositoryFile = cfgLocation
-			return
+			return nil
 		}
 	}
 	//folder dsql
@@ -57,11 +76,12 @@ func search() {
 	inAppLocation := filepath.Join(absPath, repositoryFile)
 	if _, err := os.Stat(inAppLocation); err == nil {
 		repositoryFile = inAppLocation
-		return
+		return nil
 	}
 	if cfgLocation != "" {
 		repositoryFile = cfgLocation
 	}
+	return nil
 }
 
 //SetRepositoryFile - set new location repository file

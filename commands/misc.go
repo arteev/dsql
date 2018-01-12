@@ -14,8 +14,11 @@ func init() {
 			Name:  "env",
 			Usage: "print dsql environment(variables,options) information",
 			Action: func(ctx *cli.Context) {
-				fmt.Println("REPOSITORY:", repository.GetRepositoryFile(), " DEFAULT:", repository.IsDefault())
-				fmt.Println("ENGINES:", rdb.KnownEngine)
+				fmt.Println("Environment variables.")
+				fmt.Printf("%s : %q\n", repository.ENDSQLREPO, repository.EnvDSQLRepo)
+				fmt.Println("DSQL variables.")
+				fmt.Printf("REPOSITORY: %s DEFAULT: %v\n", repository.GetRepositoryFile(), repository.IsDefault())
+				fmt.Printf("ENGINES: %v\n", rdb.KnownEngine)
 			},
 		},
 	})
